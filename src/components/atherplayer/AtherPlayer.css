@@ -1,0 +1,90 @@
+body {
+  background: #0b0f1a;
+  color: white;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.aether-container {
+  display: flex;
+  height: 100vh;
+}
+
+/* 🎬 LEFT SIDE */
+.video-section {
+  flex: 2;
+  padding: 20px;
+}
+
+.video-player {
+  width: 100%;
+  border-radius: 15px;
+}
+
+.title {
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+.description {
+  color: #aaa;
+}
+
+/* 🧠 RIGHT SIDE */
+.notes-section {
+  flex: 1;
+  background: #121826;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 📄 PDF BUTTON */
+.download-btn {
+  background: #7c3aed;
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: white;
+  text-decoration: none;
+}
+
+/* 📝 NOTES */
+.notes-list {
+  margin-top: 20px;
+}
+
+.note-card {
+  background: #1e293b;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.note-card:hover {
+  background: #2d3b55;
+}
+
+/* 🔥 ACTIVE NOTE */
+.note-card.active {
+  border: 2px solid #7c3aed;
+  background: #2a1f4f;
+}
+
+.timestamp {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* 💻 CODE */
+.code-block {
+  background: #0f172a;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}

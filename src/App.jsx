@@ -1,0 +1,97 @@
+import React, { useState, useEffect } from "react";
+
+import "./App.css";
+import Sidebar from "./components/sidebar/Sidebar";
+import Dashboard from "./components/dashboard/Dashboard";
+import LearningLab from "./components/learninglab/LearningLab";
+import ResumeHub from "./components/resumehub/ResumeHub";
+import PlacementGuide from "./components/placementguide/PlacementGuide";
+import Library from "./components/library/Library";
+import AetherPlayer from "./components/atherplayer/AtherPlayer";
+import Auth from "./components/auth/Auth";
+import Profile from "./components/profile/Profile";
+
+function App() {
+  const [user, setUser] = useState(null);
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  
+  const params = new URLSearchParams(window.location.search);
+  const viewParam = params.get("view");
+  const topicParam = params.get("topic") || "";
+  
+  const [currentView, setCurrentView] = useState(viewParam === "player" ? "player" : "home");
+
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (stored) setUser(JSON.parse(stored));
+
+    const handleNav = (e) => setCurrentView(e.detail);
+    window.addEventListener("navigate", handleNav);
+    return () => window.removeEventListener("navigate", handleNav);
+  }, []);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!isSidebarOpen);
+  };
+
+  if (!user) {
+    return <Auth onLogin={setUser} />;
+  }
+
+  return (
+    <div className="container-fluid p-0 overflow-hidden vh-100">
+      <div className="row g-0 h-100">
+        {/* Sidebar wrapper with conditional width */}
+        <div
+          className={`sidebar-wrapper transition-all ${isSidebarOpen ? "col-md-2" : "d-none"}`}
+        >
+          <Sidebar onNavigate={setCurrentView} activeView={currentView} />
+        </div>
+
+        {/* Main Content Area */}
+        <main
+          className={`${isSidebarOpen ? "col-md-10" : "col-md-12"} h-100 overflow-auto`}
+        >
+          {currentView === "home" ? (
+            <Dashboard
+              isSidebarOpen={isSidebarOpen}
+              toggleSidebar={toggleSidebar}
+              onNavigate={setCurrentView}
+            />
+          ) : currentView === "lab" ? (
+            <LearningLab
+              isSidebarOpen={isSidebarOpen}
+              toggleSidebar={toggleSidebar}
+            />
+          ) : currentView === "resume" ? (
+            <ResumeHub
+              isSidebarOpen={isSidebarOpen}
+              toggleSidebar={toggleSidebar}
+            />
+          ) : currentView === "placement" ? (
+            <PlacementGuide
+              isSidebarOpen={isSidebarOpen}
+              toggleSidebar={toggleSidebar}
+            />
+          ) : currentView === "library" ? (
+            <Library
+              isSidebarOpen={isSidebarOpen}
+              toggleSidebar={toggleSidebar}
+            />
+          ) : currentView === "profile" ? (
+            <Profile
+              isSidebarOpen={isSidebarOpen}
+              toggleSidebar={toggleSidebar}
+            />
+          ) : currentView === "player" ? (
+            <div className="p-4 h-100">
+              <AetherPlayer topic={topicParam} />
+            </div>
+          ) : null}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default App;

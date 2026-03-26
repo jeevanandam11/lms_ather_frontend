@@ -1,0 +1,351 @@
+:root {
+  --bg-dark: #0f111a;
+  --card-bg: #1a1d2b;
+  --accent-purple: #8a70ff;
+  --accent-green: #00d29d;
+  --text-muted: #8b949e;
+  --sidebar-bg: #121420;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: white !important;
+  font-family: "Inter", sans-serif;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glassmorphism Card Effect */
+.glass-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Sidebar Layout */
+.sidebar {
+  height: 100vh;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--sidebar-bg);
+  position: sticky;
+  top: 0;
+}
+
+/* Navigation Links */
+.nav-link {
+  color: var(--text-muted);
+  padding: 12px 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.nav-link.active {
+  background: rgba(138, 112, 255, 0.1);
+  color: var(--accent-purple) !important;
+  font-weight: 600;
+}
+
+/* Circular Progress Component */
+.progress-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  /* Conic gradient creates the 'ring' effect */
+  background: conic-gradient(var(--accent-green) 78%, #2d334a 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.progress-circle::after {
+  content: "78%"; /* Quotes added here */
+  position: absolute;
+  width: 66px;
+  height: 66px;
+  background: var(--card-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: white;
+}
+
+/* Scrollbar Styling for Dark Theme */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2d334a;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-purple);
+}
+
+/* Smooth transition for the sidebar and main content */
+.transition-all {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ensure the toggle button stays visible and looks clickable */
+header button:hover {
+  background-color: rgba(138, 112, 255, 0.2) !important;
+  color: var(--accent-purple) !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    z-index: 1050;
+    width: 250px;
+  }
+}
+
+/* LearningLab */
+.roadmap-line {
+  position: absolute;
+  top: 20px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-green) 50%,
+    var(--accent-purple) 75%,
+    #2d334a 100%
+  );
+  z-index: 1;
+}
+
+.btn-accent {
+  background-color: var(--accent-purple);
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.btn-accent:hover {
+  background-color: #7a60ef;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(138, 112, 255, 0.3);
+}
+
+/* Placement Guide */
+/* Color Palette Additions */
+:root {
+  --accent-orange: #ff5c00;
+  --bg-orange-soft: rgba(255, 92, 0, 0.1);
+}
+
+.text-orange {
+  color: var(--accent-orange);
+}
+.bg-orange-soft {
+  background: var(--bg-orange-soft);
+}
+
+/* Roadmap Styling */
+.roadmap-line-bg {
+  position: absolute;
+  top: 20px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.roadmap-line-fill {
+  position: absolute;
+  top: 20px;
+  left: 10%;
+  height: 2px;
+  background: var(--accent-purple);
+  z-index: 1;
+  transition: width 0.8s ease;
+}
+
+.roadmap-node {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Large Action Button */
+.btn-orange-lg {
+  background: linear-gradient(90deg, #ff5c00, #ff8a00);
+  border: none;
+  color: white;
+  border-radius: 12px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn-orange-lg:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 92, 0, 0.4);
+}
+
+.border-dashed {
+  border: 2px dashed rgba(255, 255, 255, 0.1) !important;
+}
+
+.shadow-glow {
+  box-shadow: 0 0 15px var(--accent-purple);
+}
+
+/* Library */
+.progress-circle-sm {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.progress-circle-sm::after {
+  content: "";
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  background: var(--bg-dark);
+  border-radius: 50%;
+}
+
+.progress-circle-sm span {
+  position: relative;
+  z-index: 1;
+}
+
+.archive-thumb {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5)),
+    url("https://via.placeholder.com/300x160"); /* Replace with actual logic */
+  background-size: cover;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent-purple);
+  transition: all 0.3s ease;
+}
+
+.tracking-widest {
+  letter-spacing: 0.1em;
+}
+
+/* AetherPlayer */
+body {
+  background: #0b0f1a;
+  color: white;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.aether-container {
+  display: flex;
+  height: 100vh;
+}
+
+.video-section {
+  flex: 2;
+  padding: 20px;
+}
+
+.video-player {
+  width: 100%;
+  border-radius: 15px;
+}
+
+.title {
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+.description {
+  color: #aaa;
+}
+
+.notes-section {
+  flex: 1;
+  background: #121826;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.download-btn {
+  background: #7c3aed;
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: white;
+  text-decoration: none;
+}
+
+.notes-list {
+  margin-top: 20px;
+}
+
+.note-card {
+  background: #1e293b;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.note-card:hover {
+  background: #2d3b55;
+}
+
+.note-card.active {
+  border: 2px solid #7c3aed;
+  background: #2a1f4f;
+}
+
+.timestamp {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* 💻 CODE */
+.code-block {
+  background: #0f172a;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
