@@ -13,7 +13,7 @@ const Topic_Gen = ({ onGenerate }) => {
 
   return (
     <div
-      className="glass-card p-4"
+      className="glass-card p-4 h-100"
       style={{ borderLeft: "4px solid var(--accent-purple)" }}
     >
       <div className="d-flex align-items-center gap-3 mb-3">

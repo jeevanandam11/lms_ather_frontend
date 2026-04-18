@@ -1,58 +1,53 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "../../App.css";
 import Header from "../header/Header";
 
 const LearningLab = ({ isSidebarOpen, toggleSidebar }) => {
+  const [roadmapData, setRoadmapData] = useState(null);
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    const data = localStorage.getItem("placementRoadmap");
+    if (data) {
+      try {
+        setRoadmapData(JSON.parse(data));
+      } catch (e) {
+        console.error("Failed to parse roadmap data", e);
+      }
+    }
+
+    const historyData = localStorage.getItem("placementRoadmapHistory");
+    if (historyData) {
+      try {
+        setHistory(JSON.parse(historyData));
+      } catch (e) {
+        console.error("Failed to parse roadmap history", e);
+      }
+    }
+  }, []);
+
+  const handleDeleteHistory = (id) => {
+    const updatedHistory = history.filter((item) => item.id !== id);
+    setHistory(updatedHistory);
+    localStorage.setItem(
+      "placementRoadmapHistory",
+      JSON.stringify(updatedHistory),
+    );
+  };
+
   return (
     <>
       <div className="container-fluid p-0 overflow-hidden">
         <div className="row g-0">
+          {/* Header */}
+          <Header isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
           {/* Main Content */}
           <main
-            className={`${isSidebarOpen ? "col-md-10" : "col-md-12"} vh-100 overflow-auto p-4 p-lg-5 transition-all`}
+            className={`${isSidebarOpen ? "col-md-12" : "col-md-12"} vh-100 overflow-auto p-4 p-lg-5 transition-all`}
           >
-            {/* Header */}
-            <Header
-              isSidebarOpen={isSidebarOpen}
-              toggleSidebar={toggleSidebar}
-            />
             <div className="p-4 p-lg-5">
-              <header className="d-flex justify-content-between align-items-center mb-5">
-                <div className="d-flex align-items-center gap-3">
-                  <button
-                    className="btn btn-dark border-0 rounded-3 p-2"
-                    onClick={toggleSidebar}
-                  >
-                    <i
-                      className={`bi ${isSidebarOpen ? "bi-text-indent-left" : "bi-list"} fs-5 text-muted`}
-                    ></i>
-                  </button>
-                  <div>
-                    <h2 className="fw-bold mb-0">Tactical Placement Suite</h2>
-                    <p className="text-muted mb-0 small">
-                      Phase 3: Interview Prep (Active)
-                    </p>
-                  </div>
-                </div>
-                <div className="d-flex align-items-center gap-3">
-                  <div className="position-relative">
-                    <i className="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-                    <input
-                      className="form-control bg-dark border-0 text-white ps-5"
-                      placeholder="Search roles, companies..."
-                      style={{ width: "350px" }}
-                    />
-                  </div>
-                  <i className="bi bi-bell fs-5 text-muted px-2"></i>
-                  <div
-                    className="rounded-circle bg-secondary"
-                    style={{ width: "40px", height: "40px" }}
-                  ></div>
-                </div>
-              </header>
-
               <div className="row g-4">
-                <div className="col-lg-8">
+                <div className="col-lg-12">
                   <div className="glass-card p-4 mb-4 d-flex align-items-center justify-content-between">
                     <div className="d-flex align-items-center gap-4">
                       <div
@@ -84,96 +79,132 @@ const LearningLab = ({ isSidebarOpen, toggleSidebar }) => {
                     </div>
                   </div>
 
-                  <div className="glass-card p-4 mb-4">
-                    <h6 className="text-uppercase fw-bold small mb-4 opacity-50">
-                      Placement Roadmap
-                    </h6>
-                    <div className="d-flex justify-content-between position-relative px-5">
-                      <div className="roadmap-line"></div>
-                      <RoadmapStep
-                        icon="bi-check-lg"
-                        label="Profile Optimization"
-                        status="Completed"
-                        active
-                      />
-                      <RoadmapStep
-                        icon="bi-check-lg"
-                        label="Skill Validation"
-                        status="Verified"
-                        active
-                      />
-                      <RoadmapStep
-                        icon="bi-people"
-                        label="Interview Prep"
-                        status="In Progress"
-                        highlight
-                      />
-                      <RoadmapStep
-                        icon="bi-send"
-                        label="Active Applications"
-                        status="Locked"
-                        muted
-                      />
-                    </div>
-                  </div>
-
-                  <div className="glass-card overflow-hidden">
-                    <div className="p-3 border-bottom border-white border-opacity-10 d-flex justify-content-between align-items-center">
-                      <span className="small fw-bold">
-                        <i className="bi bi-camera-video me-2"></i>Mock
-                        Interview Simulator
-                      </span>
-                      <div className="d-flex align-items-center gap-3">
-                        <span className="text-danger small">
-                          <i
-                            className="bi bi-circle-fill me-2"
-                            style={{ fontSize: "0.5rem" }}
-                          ></i>
-                          REC 04:12
+                  {roadmapData ? (
+                    <div className="glass-card p-4 mb-4">
+                      <h6 className="text-uppercase fw-bold small mb-4 opacity-50">
+                        AI Generated Placement Roadmap
+                      </h6>
+                      <div className="d-flex flex-wrap gap-2 mb-3">
+                        <span className="badge bg-success bg-opacity-10 text-success">
+                          Skills Found:{" "}
+                          {roadmapData.skills_identified?.length || 0}
                         </span>
-                        <button className="btn btn-sm btn-outline-light border-opacity-25">
-                          End Session
+                        <span className="badge bg-warning bg-opacity-10 text-warning">
+                          Skill Gaps: {roadmapData.skill_gaps?.length || 0}
+                        </span>
+                      </div>
+
+                      {["beginner", "intermediate", "advanced"].map(
+                        (level) =>
+                          roadmapData.roadmap?.[level] &&
+                          roadmapData.roadmap[level].length > 0 && (
+                            <div key={level} className="mb-3">
+                              <span className="small fw-bold text-uppercase text-orange d-block mb-2">
+                                {level} Phase
+                              </span>
+                              <div className="d-flex gap-2 flex-wrap">
+                                {roadmapData.roadmap[level].map((topic, i) => (
+                                  <span
+                                    key={i}
+                                    className="badge bg-dark border border-secondary border-opacity-25 px-3 py-2 hover-glow"
+                                    style={{ cursor: "pointer" }}
+                                    onClick={() =>
+                                      (window.location.href = `/?view=player&topic=${encodeURIComponent(topic)}`)
+                                    }
+                                  >
+                                    {topic}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          ),
+                      )}
+                    </div>
+                  ) : (
+                    <div className="glass-card p-4 mb-4">
+                      <h6 className="text-uppercase fw-bold small mb-4 opacity-50">
+                        Placement Roadmap
+                      </h6>
+                      <div className="text-center py-3">
+                        <p className="text-muted small mb-3">
+                          No roadmap found. Initialize your journey in the
+                          Placement Guide.
+                        </p>
+                        <button
+                          className="btn btn-sm btn-outline-accent"
+                          onClick={() =>
+                            window.dispatchEvent(
+                              new CustomEvent("navigate", {
+                                detail: "placement",
+                              }),
+                            )
+                          }
+                        >
+                          Go to Placement Guide
                         </button>
                       </div>
                     </div>
-                    <div className="row g-0" style={{ minHeight: "350px" }}>
-                      <div className="col-md-7 bg-black d-flex align-items-center justify-content-center border-end border-white border-opacity-10">
-                        <i className="bi bi-person-circle display-1 opacity-25"></i>
+                  )}
+
+                  {history.length > 0 && (
+                    <div className="glass-card p-4 mb-4">
+                      <h6 className="text-uppercase fw-bold small mb-4 opacity-50">
+                        Placement Roadmap History
+                      </h6>
+                      <ul className="list-group list-group-flush bg-transparent">
+                        {history.map((item) => (
+                          <li
+                            key={item.id}
+                            className="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between align-items-center px-0"
+                          >
+                            <div>
+                              <div className="fw-bold">
+                                {item.targetRole}{" "}
+                                <span className="badge bg-secondary ms-2 small">
+                                  Saved
+                                </span>
+                              </div>
+                              <small className="text-muted">{item.date}</small>
+                            </div>
+                            <div className="d-flex gap-2">
+                              <button
+                                className="btn btn-sm btn-outline-accent py-0 shadow-none"
+                                onClick={() => setRoadmapData(item.data)}
+                              >
+                                View
+                              </button>
+                              <button
+                                className="btn btn-sm btn-outline-danger py-0 d-flex align-items-center shadow-none"
+                                onClick={() => handleDeleteHistory(item.id)}
+                              >
+                                <i className="bi bi-trash"></i>
+                              </button>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div className="glass-card overflow-hidden">
+                    <div className="p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                      <div>
+                        <h4 className="fw-bold mb-1">
+                          <i className="bi bi-ui-checks-grid me-2 text-accent"></i> Placement Mock Quiz
+                        </h4>
+                        <p className="text-muted small mb-0">Evaluate your skills algorithmically based on your generated roadmap topics.</p>
                       </div>
-                      <div className="col-md-5 p-3 bg-dark bg-opacity-25">
-                        <label className="text-muted small mb-3 text-uppercase">
-                          Live Transcription
-                        </label>
-                        <div className="small mb-4">
-                          <p className="mb-2">
-                            <span className="text-accent fw-bold">
-                              Aether AI:
-                            </span>{" "}
-                            "How would you optimize a high-traffic API
-                            endpoint?"
-                          </p>
-                          <p className="text-muted">
-                            <span className="text-success fw-bold">You:</span>{" "}
-                            "I would implement a write-through cache
-                            strategy..."
-                          </p>
-                        </div>
-                        <div className="p-3 rounded bg-accent bg-opacity-10 border border-accent border-opacity-20">
-                          <p className="small mb-0 text-accent">
-                            <i className="bi bi-stars me-2"></i>REAL-TIME
-                            INSIGHT
-                          </p>
-                          <p className="small text-muted mb-0">
-                            Try to emphasize horizontal scaling in your
-                            response.
-                          </p>
-                        </div>
-                      </div>
+                      <button 
+                        className="btn btn-accent px-4 py-2" 
+                        onClick={() => window.dispatchEvent(new CustomEvent("navigate", { detail: "quiz" }))}
+                      >
+                        <i className="bi bi-play-circle-fill me-2"></i> Take Assesment
+                      </button>
                     </div>
                   </div>
                 </div>
 
-                <div className="col-lg-4">
+                {/* <div className="col-lg-4">
                   <div
                     className="glass-card p-4 mb-4"
                     style={{
@@ -246,7 +277,7 @@ const LearningLab = ({ isSidebarOpen, toggleSidebar }) => {
                       <span className="fw-bold">$205,000</span>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </main>

@@ -14,17 +14,14 @@ const Dashboard = ({ isSidebarOpen, toggleSidebar, onNavigate }) => {
     <>
       <div className="container-fluid p-0 overflow-hidden">
         <div className="row g-0">
+          <Header isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
           {/* Main Content */}
           <main
             className={`${
-              isSidebarOpen ? "col-md-10" : "col-md-12"
+              isSidebarOpen ? "col-md-12" : "col-md-12"
             } vh-100 overflow-auto p-4 p-lg-5 transition-all`}
           >
             {/* Header */}
-            <Header
-              isSidebarOpen={isSidebarOpen}
-              toggleSidebar={toggleSidebar}
-            />
 
             {/* Stats */}
             <StatsRow />
@@ -38,7 +35,9 @@ const Dashboard = ({ isSidebarOpen, toggleSidebar, onNavigate }) => {
 
               {/* RIGHT SIDE */}
               <div className="col-md-5">
-                <Resume_Analyser onClick={() => onNavigate && onNavigate("resume")} />
+                <Resume_Analyser
+                  onClick={() => onNavigate && onNavigate("resume")}
+                />
               </div>
             </div>
 

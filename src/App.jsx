@@ -10,16 +10,21 @@ import Library from "./components/library/Library";
 import AetherPlayer from "./components/atherplayer/AtherPlayer";
 import Auth from "./components/auth/Auth";
 import Profile from "./components/profile/Profile";
+import QuizTest from "./components/quiztest/QuizTest";
+import MyCertificate from "./components/certificate/MyCertificate";
 
 function App() {
   const [user, setUser] = useState(null);
   const [isSidebarOpen, setSidebarOpen] = useState(true);
-  
+  const [theme, setTheme] = useState(localStorage.getItem("appTheme") || "dark");
+
   const params = new URLSearchParams(window.location.search);
   const viewParam = params.get("view");
   const topicParam = params.get("topic") || "";
-  
-  const [currentView, setCurrentView] = useState(viewParam === "player" ? "player" : "home");
+
+  const [currentView, setCurrentView] = useState(
+    viewParam === "player" ? "player" : "home",
+  );
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
@@ -29,6 +34,19 @@ function App() {
     window.addEventListener("navigate", handleNav);
     return () => window.removeEventListener("navigate", handleNav);
   }, []);
+
+  useEffect(() => {
+    if (theme === "light") {
+      document.body.classList.add("light-theme");
+    } else {
+      document.body.classList.remove("light-theme");
+    }
+    localStorage.setItem("appTheme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === "dark" ? "light" : "dark");
+  };
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
@@ -45,7 +63,7 @@ function App() {
         <div
           className={`sidebar-wrapper transition-all ${isSidebarOpen ? "col-md-2" : "d-none"}`}
         >
-          <Sidebar onNavigate={setCurrentView} activeView={currentView} />
+          <Sidebar onNavigate={setCurrentView} activeView={currentView} theme={theme} toggleTheme={toggleTheme} />
         </div>
 
         {/* Main Content Area */}
@@ -80,6 +98,16 @@ function App() {
             />
           ) : currentView === "profile" ? (
             <Profile
+              isSidebarOpen={isSidebarOpen}
+              toggleSidebar={toggleSidebar}
+            />
+          ) : currentView === "quiz" ? (
+            <QuizTest
+              isSidebarOpen={isSidebarOpen}
+              toggleSidebar={toggleSidebar}
+            />
+          ) : currentView === "certificate" ? (
+            <MyCertificate
               isSidebarOpen={isSidebarOpen}
               toggleSidebar={toggleSidebar}
             />

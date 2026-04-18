@@ -1,13 +1,49 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 // import Sidebar from "../sidebar/Sidebar";
 import Header from "../header/Header";
 import "../../App.css";
 
 const Library = ({ isSidebarOpen, toggleSidebar }) => {
+  const [history, setHistory] = useState([]);
+  const [viewMode, setViewMode] = useState("grid");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          const res = await axios.get(
+            `http://localhost:8080/api/history/user/${user.id}`,
+          );
+          setHistory(res.data);
+        }
+      } catch (err) {
+        console.error("Error fetching history", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHistory();
+  }, []);
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8080/api/history/${id}`);
+      setHistory((prev) => prev.filter((h) => h.id !== id));
+    } catch (err) {
+      console.error("Error deleting history", err);
+    }
+  };
+
   return (
     <>
       <div className="container-fluid p-0 overflow-hidden">
         <div className="row g-0">
+          {/* Header */}
+          <Header isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
           {/* Sidebar Column */}
           {/* <div
           className={`p-0 transition-all ${isSidebarOpen ? "col-md-2" : "d-none"}`}
@@ -15,19 +51,13 @@ const Library = ({ isSidebarOpen, toggleSidebar }) => {
         >
           <Sidebar />
         </div> */}
-
           {/* Main Content Column */}
           <main
-            className={`${isSidebarOpen ? "col-md-10" : "col-md-12"} vh-100 overflow-auto p-4 p-lg-5 transition-all`}
+            className={`${isSidebarOpen ? "col-md-12" : "col-md-12"} vh-100 overflow-auto p-4 p-lg-5 transition-all`}
           >
-            {/* Header */}
-            <Header
-              isSidebarOpen={isSidebarOpen}
-              toggleSidebar={toggleSidebar}
-            />
             <div className="row g-4">
-              <div className="col-lg-8">
-                <h6 className="text-uppercase fw-bold small mb-4 opacity-50 tracking-widest">
+              <div className="col-lg-12">
+                {/* <h6 className="text-uppercase fw-bold small mb-4 opacity-50 tracking-widest">
                   Current Learning Paths
                 </h6>
                 <div className="row g-4 mb-5">
@@ -43,89 +73,142 @@ const Library = ({ isSidebarOpen, toggleSidebar }) => {
                     modules="4/10"
                     tags={["#React", "#Tailwind"]}
                   />
-                </div>
+                </div> */}
 
                 <div className="d-flex justify-content-between align-items-center mb-4">
                   <h6 className="text-uppercase fw-bold small mb-0 opacity-50 tracking-widest">
                     Knowledge Archive
                   </h6>
                   <div className="btn-group">
-                    <button className="btn btn-sm btn-dark border-0">
+                    <button
+                      className={`btn btn-sm btn-dark border-0 ${viewMode === "grid" ? "" : "opacity-50"}`}
+                      onClick={() => setViewMode("grid")}
+                    >
                       <i className="bi bi-grid-fill"></i>
                     </button>
-                    <button className="btn btn-sm btn-dark border-0 opacity-50">
+                    <button
+                      className={`btn btn-sm btn-dark border-0 ${viewMode === "list" ? "" : "opacity-50"}`}
+                      onClick={() => setViewMode("list")}
+                    >
                       <i className="bi bi-list"></i>
                     </button>
                   </div>
                 </div>
 
-                <div className="row g-4">
-                  <ArchiveCard
-                    type="video"
-                    title="Advanced React Patterns"
-                    duration="12:45 mins"
-                    tags={["#JavaScript", "#WebDev"]}
-                    isNew
-                  />
-                  <ArchiveCard
-                    type="pdf"
-                    title="System Design: Scalability"
-                    size="2.4 MB"
-                    tags={["#InterviewPrep", "#Architecture"]}
-                  />
-                  <ArchiveCard
-                    type="note"
-                    title="Personal SQL Cheat Sheet"
-                    modified="Modified 2h ago"
-                    tags={["#SQL", "#Database"]}
-                  />
-                </div>
-              </div>
+                {loading ? (
+                  <p className="text-muted">Loading history...</p>
+                ) : history.length === 0 ? (
+                  <p className="text-muted">
+                    No generated topics found. Use the Topic Generator to get
+                    started!
+                  </p>
+                ) : viewMode === "grid" ? (
+                  <div className="row g-4">
+                    {history.map((item) => (
+                      <div key={item.id} className="col-md-4">
+                        <div className="glass-card p-4 h-100 d-flex flex-column card-hover">
+                          <div className="d-flex justify-content-between align-items-start mb-3">
+                            <div
+                              className="bg-dark rounded-circle d-flex align-items-center justify-content-center"
+                              style={{ width: "40px", height: "40px" }}
+                            >
+                              <i className="bi bi-journal-text text-accent fs-5"></i>
+                            </div>
+                            <button
+                              className="btn btn-link text-danger p-0"
+                              onClick={() => handleDelete(item.id)}
+                            >
+                              <i className="bi bi-trash"></i>
+                            </button>
+                          </div>
 
-              <div className="col-lg-4">
-                <div className="glass-card h-100 p-0 overflow-hidden d-flex flex-column">
-                  <div className="p-4 border-bottom border-white border-opacity-10 d-flex justify-content-between align-items-center">
-                    <h6 className="fw-bold mb-0">
-                      <i className="bi bi-cpu-fill text-accent me-2"></i>Global
-                      AI Notes
-                    </h6>
-                    <i className="bi bi-plus-circle text-muted"></i>
-                  </div>
-                  <div className="p-4 flex-grow-1 overflow-auto">
-                    <AINoteItem
-                      topic="REACT OPTIMIZATION"
-                      time="14:02"
-                      content="Remember to use useMemo for heavy computations. AI suggested checking the reconciler logic..."
-                    />
-                    <AINoteItem
-                      topic="SQL JOINS"
-                      time="Yesterday"
-                      content="Left join vs Inner join performance impact on table with 5M records. ai_insight: Add indexes to join keys..."
-                    />
-                    <AINoteItem
-                      topic="API DESIGN"
-                      time="Aug 12"
-                      content="RESTful principles for the new microservice architecture. Avoid nested resources more than 2 levels deep..."
-                    />
-                  </div>
-                  <div className="p-4 mt-auto border-top border-white border-opacity-10 bg-dark bg-opacity-25">
-                    <div className="d-flex align-items-center gap-3">
-                      <div
-                        className="spinner-grow spinner-grow-sm text-accent"
-                        role="status"
-                      ></div>
-                      <div>
-                        <p className="small fw-bold mb-0">Smart Sync Active</p>
-                        <p
-                          className="text-muted mb-0"
-                          style={{ fontSize: "0.65rem" }}
-                        >
-                          Last updated: 2 mins ago
-                        </p>
+                          <h6
+                            className="fw-bold mb-2 text-truncate"
+                            title={item.topicName}
+                          >
+                            {item.topicName}
+                          </h6>
+                          <p className="small text-muted mb-4 flex-grow-1">
+                            Generated:{" "}
+                            {new Date(item.createdAt).toLocaleDateString()}
+                          </p>
+
+                          <div className="mt-auto">
+                            {item.pdfBase64 ? (
+                              <a
+                                href={`data:application/pdf;base64,${item.pdfBase64}`}
+                                download={`${item.topicName}.pdf`}
+                                className="btn btn-sm btn-outline-light w-100 fw-bold"
+                                style={{ fontSize: "0.8rem" }}
+                              >
+                                <i className="bi bi-file-pdf me-2"></i> Extract
+                                PDF
+                              </a>
+                            ) : (
+                              <button
+                                disabled
+                                className="btn btn-sm btn-outline-secondary w-100 fw-bold"
+                                style={{ fontSize: "0.8rem" }}
+                              >
+                                No PDF
+                              </button>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                </div>
+                ) : (
+                  <div className="table-responsive glass-card p-0">
+                    <table
+                      className="table table-dark table-hover mb-0"
+                      style={{ backgroundColor: "transparent" }}
+                    >
+                      <thead>
+                        <tr>
+                          <th className="bg-transparent border-bottom border-secondary text-muted small fw-normal py-3 ps-4">
+                            TOPIC NAME
+                          </th>
+                          <th className="bg-transparent border-bottom border-secondary text-muted small fw-normal py-3">
+                            DATE
+                          </th>
+                          <th className="bg-transparent border-bottom border-secondary text-muted small fw-normal py-3 text-end pe-4">
+                            ACTIONS
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {history.map((item) => (
+                          <tr key={item.id}>
+                            <td className="bg-transparent border-bottom border-secondary border-opacity-25 align-middle py-3 ps-4">
+                              <span className="fw-bold">{item.topicName}</span>
+                            </td>
+                            <td className="bg-transparent border-bottom border-secondary border-opacity-25 align-middle py-3 text-muted small">
+                              {new Date(item.createdAt).toLocaleDateString()}
+                            </td>
+                            <td className="bg-transparent border-bottom border-secondary border-opacity-25 align-middle py-3 text-end pe-4">
+                              {item.pdfBase64 && (
+                                <a
+                                  href={`data:application/pdf;base64,${item.pdfBase64}`}
+                                  download={`${item.topicName}.pdf`}
+                                  className="btn btn-sm btn-outline-light me-2"
+                                >
+                                  <i className="bi bi-file-pdf"></i>
+                                </a>
+                              )}
+                              <button
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={() => handleDelete(item.id)}
+                              >
+                                <i className="bi bi-trash"></i>
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
           </main>

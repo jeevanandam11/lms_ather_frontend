@@ -1,7 +1,7 @@
 import React from "react";
 import "../../App.css";
 
-const Sidebar = ({ onNavigate, activeView }) => {
+const Sidebar = ({ onNavigate, activeView, theme, toggleTheme }) => {
   return (
     <div className="sidebar p-3 d-flex flex-column vh-100 sticky-top">
       <div className="mb-5 px-3 pt-3">
@@ -62,10 +62,40 @@ const Sidebar = ({ onNavigate, activeView }) => {
         >
           <i className="bi bi-book"></i> Library
         </button>
+        <button
+          onClick={() => onNavigate("quiz")}
+          className={`nav-link border-0 bg-transparent text-start d-flex align-items-center gap-3 w-100 ${
+            activeView === "quiz" ? "active" : ""
+          }`}
+        >
+          <i className="bi bi-ui-checks"></i> Quiz Test
+        </button>
+        <button
+          onClick={() => onNavigate("certificate")}
+          className={`nav-link border-0 bg-transparent text-start d-flex align-items-center gap-3 w-100 ${
+            activeView === "certificate" ? "active" : ""
+          }`}
+        >
+          <i className="bi bi-award"></i> My Certificate
+        </button>
       </nav>
 
-      <div className="mt-auto p-3">
-        <a href="#" className="nav-link d-flex align-items-center gap-3">
+      <div className="mt-auto p-3 d-flex flex-column gap-2">
+        <button
+          className="nav-link border-0 bg-transparent text-start d-flex align-items-center gap-3 w-100"
+          onClick={toggleTheme}
+        >
+          {theme === "light" ? (
+            <>
+              <i className="bi bi-moon-fill fs-5"></i> Dark Theme
+            </>
+          ) : (
+            <>
+              <i className="bi bi-sun-fill fs-5"></i> Light Theme
+            </>
+          )}
+        </button>
+        <a href="#" className="nav-link d-flex align-items-center gap-3 w-100">
           <i className="bi bi-gear fs-5"></i> Settings
         </a>
       </div>
