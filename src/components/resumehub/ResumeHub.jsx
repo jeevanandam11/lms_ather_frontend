@@ -131,7 +131,7 @@ const ResumeHub = ({ isSidebarOpen, toggleSidebar }) => {
                   />
                   <label
                     htmlFor="resumeUpload"
-                    className="btn btn-outline-light px-4 py-2 mb-3 cursor-pointer"
+                    className="btn btn-outline-purple px-4 py-2 mb-3 cursor-pointer"
                     style={{ cursor: "pointer" }}
                   >
                     {file ? (
@@ -170,7 +170,7 @@ const ResumeHub = ({ isSidebarOpen, toggleSidebar }) => {
                         <h1 className="display-5 fw-bold mb-3">
                           Master Match Score
                         </h1>
-                        <p className="text-muted fs-5 mb-4">
+                        <p className="text-light fs-5 mb-4">
                           {result.summary ||
                             "Your resume has been evaluated successfully."}
                         </p>
@@ -230,7 +230,7 @@ const ResumeHub = ({ isSidebarOpen, toggleSidebar }) => {
                             <span className="display-3 fw-bold d-block">
                               {result.score || 0}
                             </span>
-                            <span className="text-muted text-uppercase small tracking-wider">
+                            <span className="text-light text-uppercase small tracking-wider">
                               Out of 100
                             </span>
                           </div>

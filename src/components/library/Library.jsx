@@ -53,7 +53,7 @@ const Library = ({ isSidebarOpen, toggleSidebar }) => {
         </div> */}
           {/* Main Content Column */}
           <main
-            className={`${isSidebarOpen ? "col-md-12" : "col-md-12"} vh-100 overflow-auto p-4 p-lg-5 transition-all`}
+            className={`${isSidebarOpen ? "col-md-12" : "col-md-12"} vh-100 overflow-auto p-4 p-lg-5 transition-all mar-top-space`}
           >
             <div className="row g-4">
               <div className="col-lg-12">
@@ -128,7 +128,7 @@ const Library = ({ isSidebarOpen, toggleSidebar }) => {
                           >
                             {item.topicName}
                           </h6>
-                          <p className="small text-muted mb-4 flex-grow-1">
+                          <p className="small text-light mb-4 flex-grow-1">
                             Generated:{" "}
                             {new Date(item.createdAt).toLocaleDateString()}
                           </p>
@@ -138,10 +138,10 @@ const Library = ({ isSidebarOpen, toggleSidebar }) => {
                               <a
                                 href={`data:application/pdf;base64,${item.pdfBase64}`}
                                 download={`${item.topicName}.pdf`}
-                                className="btn btn-sm btn-outline-light w-100 fw-bold"
+                                className="btn btn-sm btn-outline-purple w-100 fw-bold"
                                 style={{ fontSize: "0.8rem" }}
                               >
-                                <i className="bi bi-file-pdf me-2"></i> Extract
+                                <i className="bi bi-file-pdf  me-2"></i> Extract
                                 PDF
                               </a>
                             ) : (
@@ -166,10 +166,10 @@ const Library = ({ isSidebarOpen, toggleSidebar }) => {
                     >
                       <thead>
                         <tr>
-                          <th className="bg-transparent border-bottom border-secondary text-muted small fw-normal py-3 ps-4">
+                          <th className="bg-transparent border-bottom border-secondary text-light small fw-normal py-3 ps-4">
                             TOPIC NAME
                           </th>
-                          <th className="bg-transparent border-bottom border-secondary text-muted small fw-normal py-3">
+                          <th className="bg-transparent border-bottom border-secondary text-light small fw-normal py-3">
                             DATE
                           </th>
                           <th className="bg-transparent border-bottom border-secondary text-muted small fw-normal py-3 text-end pe-4">
@@ -183,7 +183,7 @@ const Library = ({ isSidebarOpen, toggleSidebar }) => {
                             <td className="bg-transparent border-bottom border-secondary border-opacity-25 align-middle py-3 ps-4">
                               <span className="fw-bold">{item.topicName}</span>
                             </td>
-                            <td className="bg-transparent border-bottom border-secondary border-opacity-25 align-middle py-3 text-muted small">
+                            <td className="bg-transparent border-bottom border-secondary border-opacity-25 align-middle py-3 text-light small">
                               {new Date(item.createdAt).toLocaleDateString()}
                             </td>
                             <td className="bg-transparent border-bottom border-secondary border-opacity-25 align-middle py-3 text-end pe-4">
@@ -191,7 +191,7 @@ const Library = ({ isSidebarOpen, toggleSidebar }) => {
                                 <a
                                   href={`data:application/pdf;base64,${item.pdfBase64}`}
                                   download={`${item.topicName}.pdf`}
-                                  className="btn btn-sm btn-outline-light me-2"
+                                  className="btn btn-sm btn-outline-purple me-2"
                                 >
                                   <i className="bi bi-file-pdf"></i>
                                 </a>

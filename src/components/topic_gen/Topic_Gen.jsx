@@ -33,8 +33,8 @@ const Topic_Gen = ({ onGenerate }) => {
       </div>
 
       <p className="text-light small">
-        Our AI architect will build a custom learning path, videos, and labs for
-        any concept instantly.
+        Our AI architect will build a custom learning path and labs for any
+        concept instantly.
       </p>
 
       <div className="input-group mt-4">

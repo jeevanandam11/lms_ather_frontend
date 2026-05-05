@@ -43,7 +43,7 @@ const LearningLab = ({ isSidebarOpen, toggleSidebar }) => {
           <Header isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
           {/* Main Content */}
           <main
-            className={`${isSidebarOpen ? "col-md-12" : "col-md-12"} vh-100 overflow-auto p-4 p-lg-5 transition-all`}
+            className={`${isSidebarOpen ? "col-md-12" : "col-md-12"} vh-100 overflow-auto p-4 p-lg-5 transition-all mar-top-space`}
           >
             <div className="p-4 p-lg-5">
               <div className="row g-4">
@@ -186,19 +186,59 @@ const LearningLab = ({ isSidebarOpen, toggleSidebar }) => {
                     </div>
                   )}
 
-                  <div className="glass-card overflow-hidden">
+                  <div className="glass-card overflow-hidden mb-4">
                     <div className="p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
                       <div>
                         <h4 className="fw-bold mb-1">
-                          <i className="bi bi-ui-checks-grid me-2 text-accent"></i> Placement Mock Quiz
+                          <i className="bi bi-ui-checks-grid me-2 text-accent"></i>{" "}
+                          Placement Mock Quiz
                         </h4>
-                        <p className="text-muted small mb-0">Evaluate your skills algorithmically based on your generated roadmap topics.</p>
+                        <p className="text-muted small mb-0">
+                          Evaluate your skills algorithmically based on your
+                          generated roadmap topics.
+                        </p>
                       </div>
-                      <button 
-                        className="btn btn-accent px-4 py-2" 
-                        onClick={() => window.dispatchEvent(new CustomEvent("navigate", { detail: "quiz" }))}
+                      <button
+                        className="btn btn-accent px-4 py-2"
+                        onClick={() =>
+                          window.dispatchEvent(
+                            new CustomEvent("navigate", { detail: "quiz" }),
+                          )
+                        }
                       >
-                        <i className="bi bi-play-circle-fill me-2"></i> Take Assesment
+                        <i className="bi bi-play-circle-fill me-2"></i> Take
+                        Assesment
+                      </button>
+                    </div>
+                  </div>
+
+                  <div
+                    className="glass-card overflow-hidden"
+                    style={{ border: "1px solid #8a70ff" }}
+                  >
+                    <div className="p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                      <div>
+                        <h4 className="fw-bold mb-1 text-white">
+                          <i className="bi bi-mic-fill me-2 text-accent"></i>{" "}
+                          Placement Mock Interview
+                        </h4>
+                        <p className="text-muted small mb-0">
+                          Practice your speaking skills with an AI interviewer
+                          tailored strictly to your placement guide target role.
+                        </p>
+                      </div>
+                      <button
+                        className="btn px-4 py-2 text-white"
+                        style={{ backgroundColor: "#8a70ff" }}
+                        onClick={() =>
+                          window.dispatchEvent(
+                            new CustomEvent("navigate", {
+                              detail: "mockInterview",
+                            }),
+                          )
+                        }
+                      >
+                        <i className="bi bi-mic me-2"></i> Take Mock Interview
                       </button>
                     </div>
                   </div>

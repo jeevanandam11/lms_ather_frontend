@@ -12,11 +12,14 @@ import Auth from "./components/auth/Auth";
 import Profile from "./components/profile/Profile";
 import QuizTest from "./components/quiztest/QuizTest";
 import MyCertificate from "./components/certificate/MyCertificate";
+import MockInterview from "./components/mockinterview/MockInterview";
 
 function App() {
   const [user, setUser] = useState(null);
   const [isSidebarOpen, setSidebarOpen] = useState(true);
-  const [theme, setTheme] = useState(localStorage.getItem("appTheme") || "dark");
+  const [theme, setTheme] = useState(
+    localStorage.getItem("appTheme") || "dark",
+  );
 
   const params = new URLSearchParams(window.location.search);
   const viewParam = params.get("view");
@@ -25,12 +28,20 @@ function App() {
   const [currentView, setCurrentView] = useState(
     viewParam === "player" ? "player" : "home",
   );
+  const [activeTopic, setActiveTopic] = useState(topicParam);
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
     if (stored) setUser(JSON.parse(stored));
 
-    const handleNav = (e) => setCurrentView(e.detail);
+    const handleNav = (e) => {
+      if (typeof e.detail === 'object' && e.detail.view) {
+        setCurrentView(e.detail.view);
+        if (e.detail.topic) setActiveTopic(e.detail.topic);
+      } else {
+        setCurrentView(e.detail);
+      }
+    };
     window.addEventListener("navigate", handleNav);
     return () => window.removeEventListener("navigate", handleNav);
   }, []);
@@ -45,7 +56,7 @@ function App() {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === "dark" ? "light" : "dark");
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
   const toggleSidebar = () => {
@@ -63,7 +74,12 @@ function App() {
         <div
           className={`sidebar-wrapper transition-all ${isSidebarOpen ? "col-md-2" : "d-none"}`}
         >
-          <Sidebar onNavigate={setCurrentView} activeView={currentView} theme={theme} toggleTheme={toggleTheme} />
+          <Sidebar
+            onNavigate={setCurrentView}
+            activeView={currentView}
+            theme={theme}
+            toggleTheme={toggleTheme}
+          />
         </div>
 
         {/* Main Content Area */}
@@ -111,9 +127,14 @@ function App() {
               isSidebarOpen={isSidebarOpen}
               toggleSidebar={toggleSidebar}
             />
+          ) : currentView === "mockInterview" ? (
+            <MockInterview
+              isSidebarOpen={isSidebarOpen}
+              toggleSidebar={toggleSidebar}
+            />
           ) : currentView === "player" ? (
-            <div className="p-4 h-100">
-              <AetherPlayer topic={topicParam} />
+            <div className="h-100">
+              <AetherPlayer topic={activeTopic} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
             </div>
           ) : null}
         </main>

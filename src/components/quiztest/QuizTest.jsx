@@ -123,11 +123,11 @@ const QuizTest = ({ isSidebarOpen, toggleSidebar }) => {
       <div className="row g-0">
         <Header isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         <main
-          className={`${isSidebarOpen ? "col-md-12" : "col-md-12"} vh-100 overflow-auto p-4 p-lg-5 transition-all`}
+          className={`${isSidebarOpen ? "col-md-12" : "col-md-12"} vh-100 overflow-auto p-4 p-lg-5 transition-all mar-top-space`}
         >
           <div className="text-center mb-5">
             <h1 className="display-5 fw-bold mb-4">Mock Interview Quiz Test</h1>
-            <p className="text-muted">
+            <p className="text-light">
               Test your placement readiness natively.
             </p>
           </div>
@@ -136,7 +136,7 @@ const QuizTest = ({ isSidebarOpen, toggleSidebar }) => {
             {!roadmapData ? (
               <div className="col-lg-8 mb-4">
                 <div className="glass-card p-5 text-center">
-                  <h4 className="text-muted">No Placement Roadmap Found</h4>
+                  <h4 className="text-light">No Placement Roadmap Found</h4>
                   <p className="small mt-3">
                     Please use the Placement Guide initialization step first!
                   </p>
@@ -157,12 +157,9 @@ const QuizTest = ({ isSidebarOpen, toggleSidebar }) => {
                 <div className="glass-card p-5">
                   <i className="bi bi-robot display-4 text-accent mb-3"></i>
                   <h4>Generate Custom AI Mock Test</h4>
-                  <p className="text-muted small mb-4">
-                    Using Groq LLaMA models, we will curate exactly 10 questions
-                    mapped entirely to your Roadmap skills algorithmically.
-                  </p>
+
                   <button
-                    className="btn btn-accent px-5 py-3 fw-bold tracking-wider"
+                    className="btn btn-accent px-5 py-3 fw-bold tracking-wider mt-3"
                     onClick={handleGenerateQuiz}
                     disabled={loading}
                   >
@@ -482,12 +479,12 @@ const QuizTest = ({ isSidebarOpen, toggleSidebar }) => {
             ) : (
               <div className="col-lg-8 animate-fade-in">
                 <div className="glass-card p-4 mb-4 d-flex justify-content-between align-items-center">
-                  <span className="text-muted fw-bold">
+                  <span className="text-light fw-bold">
                     Question {currentQuestion + 1} of {questions.length}
                   </span>
                   <div className="progress w-50" style={{ height: "10px" }}>
                     <div
-                      className="progress-bar bg-accent"
+                      className="progress-bar bg-accent text-light"
                       role="progressbar"
                       style={{
                         width: `${((currentQuestion + 1) / questions.length) * 100}%`,

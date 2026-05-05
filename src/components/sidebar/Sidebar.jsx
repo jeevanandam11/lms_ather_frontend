@@ -78,6 +78,14 @@ const Sidebar = ({ onNavigate, activeView, theme, toggleTheme }) => {
         >
           <i className="bi bi-award"></i> My Certificate
         </button>
+        <button
+          onClick={() => onNavigate("mockInterview")}
+          className={`nav-link border-0 bg-transparent text-start d-flex align-items-center gap-3 w-100 ${
+            activeView === "mockInterview" ? "active" : ""
+          }`}
+        >
+          <i className="bi bi-mic"></i> Mock Interview
+        </button>
       </nav>
 
       <div className="mt-auto p-3 d-flex flex-column gap-2">
@@ -95,9 +103,6 @@ const Sidebar = ({ onNavigate, activeView, theme, toggleTheme }) => {
             </>
           )}
         </button>
-        <a href="#" className="nav-link d-flex align-items-center gap-3 w-100">
-          <i className="bi bi-gear fs-5"></i> Settings
-        </a>
       </div>
     </div>
   );

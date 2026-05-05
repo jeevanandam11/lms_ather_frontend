@@ -40,9 +40,19 @@ const PlacementGuide = ({ isSidebarOpen, toggleSidebar }) => {
       const data = await response.json();
       setRoadmapData(data);
       localStorage.setItem("placementRoadmap", JSON.stringify(data));
-      const historyItem = { id: Date.now(), targetRole: role, data: data, date: new Date().toLocaleDateString() };
-      const currentHistory = JSON.parse(localStorage.getItem("placementRoadmapHistory") || "[]");
-      localStorage.setItem("placementRoadmapHistory", JSON.stringify([historyItem, ...currentHistory]));
+      const historyItem = {
+        id: Date.now(),
+        targetRole: role,
+        data: data,
+        date: new Date().toLocaleDateString(),
+      };
+      const currentHistory = JSON.parse(
+        localStorage.getItem("placementRoadmapHistory") || "[]",
+      );
+      localStorage.setItem(
+        "placementRoadmapHistory",
+        JSON.stringify([historyItem, ...currentHistory]),
+      );
     } catch (err) {
       setError(err.message);
     } finally {
@@ -83,7 +93,7 @@ const PlacementGuide = ({ isSidebarOpen, toggleSidebar }) => {
         <div className="row g-0">
           <Header isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
           <main
-            className={`${isSidebarOpen ? "col-md-12" : "col-md-12"} vh-100 overflow-auto p-4 p-lg-5 transition-all`}
+            className={`${isSidebarOpen ? "col-md-12" : "col-md-12"} vh-100 overflow-auto p-4 p-lg-5 transition-all mar-top-space`}
           >
             {roadmapData && (
               <div className="glass-card p-5 mb-5 overflow-hidden position-relative">

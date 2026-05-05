@@ -209,7 +209,7 @@ const Profile = ({ isSidebarOpen, toggleSidebar }) => {
                   { label: "Age", name: "age", type: "number" },
                 ].map((field) => (
                   <div className="col-md-6" key={field.name}>
-                    <label className="form-label small text-muted">
+                    <label className="form-label small text-light">
                       {field.label}
                     </label>
                     <input
@@ -223,7 +223,7 @@ const Profile = ({ isSidebarOpen, toggleSidebar }) => {
                 ))}
 
                 <div className="col-md-6">
-                  <label className="form-label small text-muted">
+                  <label className="form-label small text-light">
                     User Type
                   </label>
                   <select
@@ -240,7 +240,7 @@ const Profile = ({ isSidebarOpen, toggleSidebar }) => {
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label small text-muted">Purpose</label>
+                  <label className="form-label small text-light">Purpose</label>
                   <input
                     type="text"
                     className="form-control bg-dark border-secondary text-white"
