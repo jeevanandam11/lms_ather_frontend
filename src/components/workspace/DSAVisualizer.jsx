@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { findAlgorithm } from "./dsaRegistry";
+import { findAlgorithm, dsaRegistry } from "./dsaRegistry";
 
 const DSAVisualizer = ({ topic }) => {
   const [activeStruct, setActiveStruct] = useState("array");
@@ -8,6 +8,9 @@ const DSAVisualizer = ({ topic }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(0.5);
   const [isVoiceOn, setIsVoiceOn] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [filteredOptions, setFilteredOptions] = useState([]);
   
   const [history, setHistory] = useState([]);
   const [step, setStep] = useState(0);
@@ -54,7 +57,26 @@ const DSAVisualizer = ({ topic }) => {
   const handleSearch = (e) => {
     if (e.key === 'Enter') {
       loadAlgorithm(searchQuery);
+      setFilteredOptions([]);
     }
+  };
+
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    if (query.trim() === '') {
+      setFilteredOptions([]);
+    } else {
+      const matches = Object.keys(dsaRegistry).filter(k => k.includes(query.toLowerCase()));
+      setFilteredOptions(matches);
+    }
+  };
+
+  const selectAlgorithm = (key) => {
+    setSearchQuery(key);
+    setFilteredOptions([]);
+    setShowSearch(false);
+    loadAlgorithm(key);
   };
 
   // Asynchronous Step Engine
@@ -77,9 +99,19 @@ const DSAVisualizer = ({ topic }) => {
       if (!explText) {
         try {
           const res = await axios.post("http://localhost:8080/api/ai/chat", {
-            contents: [{ role: "user", parts: [{ text: `Explain this algorithmic step briefly: ${currentStepObj.description}` }] }]
+            contents: [{ role: "user", parts: [{ text: `Explain this algorithmic step briefly in one plain text sentence. Do NOT use any markdown formatting, asterisks, or HTML tags: ${currentStepObj.description}` }] }]
           });
           explText = res.data.text || res.data.explanation || currentStepObj.description;
+          
+          // Strip out the backend-injected SUGGESTIONS array if present
+          if (explText.includes("SUGGESTIONS:")) {
+            explText = explText.substring(0, explText.lastIndexOf("SUGGESTIONS:")).trim();
+          }
+          
+          // Clean remaining HTML tags and Markdown asterisks
+          explText = explText.replace(/<\/?[^>]+(>|$)/g, "");
+          explText = explText.replace(/\*\*/g, "").replace(/\*/g, "").trim();
+
           setExplanationCache(prev => ({ ...prev, [stepKey]: explText }));
         } catch (e) {
           explText = currentStepObj.description; // fallback
@@ -147,6 +179,9 @@ const DSAVisualizer = ({ topic }) => {
       if (audioRef.current) {
           audioRef.current.pause();
       }
+      if ("speechSynthesis" in window) {
+          window.speechSynthesis.cancel();
+      }
     };
   }, [isPlaying, step, isVoiceOn, speed, history, currentLabel]);
 
@@ -174,13 +209,16 @@ const DSAVisualizer = ({ topic }) => {
     { id: "array", label: "Arrays/Sorting" },
     { id: "linkedlist", label: "Linked Lists" },
     { id: "stack", label: "Stack" },
-    { id: "queue", label: "Queue" }
+    { id: "queue", label: "Queue" },
+    { id: "tree", label: "Trees" },
+    { id: "graph", label: "Graphs" }
   ];
 
   const renderVisualization = () => {
     if (activeStruct === "array") {
+      if (!Array.isArray(stateData)) return null;
       return (
-        <div className="d-flex align-items-end justify-content-center gap-2 h-75 w-100 px-4 pb-4">
+        <div className="d-flex align-items-end justify-content-center gap-2 h-100 w-100 px-4 pb-4 pt-5">
           {stateData.map((val, idx) => (
             <div key={idx} className="d-flex flex-column align-items-center" style={{ width: "8%" }}>
               <span className="small fw-bold text-white mb-2">{val}</span>
@@ -199,8 +237,9 @@ const DSAVisualizer = ({ topic }) => {
         </div>
       );
     } else if (activeStruct === "stack") {
+      if (!Array.isArray(stateData)) return null;
       return (
-        <div className="d-flex flex-column align-items-center justify-content-end h-75 w-100 pb-4">
+        <div className="d-flex flex-column align-items-center justify-content-end h-100 w-100 pb-5 pt-5">
           <div className="border-start border-end border-bottom border-secondary border-3 rounded-bottom d-flex flex-column-reverse align-items-center p-2" style={{ width: "150px", minHeight: "200px" }}>
             {stateData.map((val, idx) => (
               <div 
@@ -220,8 +259,9 @@ const DSAVisualizer = ({ topic }) => {
         </div>
       );
     } else if (activeStruct === "queue") {
+      if (!Array.isArray(stateData)) return null;
       return (
-        <div className="d-flex align-items-center justify-content-center h-75 w-100 px-4 pb-4">
+        <div className="d-flex align-items-center justify-content-center h-100 w-100 px-4 pb-4 pt-5">
           <span className="text-muted me-3 fw-bold">FRONT</span>
           <div className="border-top border-bottom border-secondary border-3 d-flex align-items-center p-2 overflow-hidden gap-2" style={{ minWidth: "300px", height: "80px" }}>
             {stateData.map((val, idx) => (
@@ -242,8 +282,9 @@ const DSAVisualizer = ({ topic }) => {
         </div>
       );
     } else if (activeStruct === "linkedlist") {
+      if (!Array.isArray(stateData)) return null;
       return (
-        <div className="d-flex align-items-center justify-content-center h-75 w-100 px-4 pb-4 flex-wrap gap-2">
+        <div className="d-flex align-items-center justify-content-center h-100 w-100 px-4 pb-4 pt-5 flex-wrap gap-2">
           <span className="text-warning fw-bold me-2">HEAD &rarr;</span>
           {stateData.map((val, idx) => (
             <div key={idx} className="d-flex align-items-center">
@@ -263,11 +304,64 @@ const DSAVisualizer = ({ topic }) => {
           {stateData.length > 0 && <span className="ms-2 text-muted fw-bold">&rarr; NULL</span>}
         </div>
       );
+    } else if (activeStruct === "tree" || activeStruct === "graph") {
+      const { nodes, edges } = stateData;
+      if (!nodes || !edges) return null;
+      return (
+        <div className="d-flex align-items-center justify-content-center h-100 w-100 position-relative pt-5 pb-4">
+          <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }}>
+             {edges.map((e, idx) => {
+               const fromNode = nodes.find(n => n.id === e.from);
+               const toNode = nodes.find(n => n.id === e.to);
+               if (!fromNode || !toNode) return null;
+               const isActiveEdge = activeIndices.includes(e.from) && activeIndices.includes(e.to);
+               return (
+                 <line 
+                   key={idx} 
+                   x1={`${fromNode.cx}%`} y1={`${fromNode.cy}%`} 
+                   x2={`${toNode.cx}%`} y2={`${toNode.cy}%`} 
+                   stroke={isActiveEdge ? "var(--accent-color, #f59e0b)" : "#6c757d"} 
+                   strokeWidth={isActiveEdge ? 4 : 2}
+                   className="transition-all"
+                 />
+               );
+             })}
+             {nodes.map((n, idx) => {
+               const isActive = activeIndices.includes(n.id);
+               return (
+                 <g key={n.id} className="transition-all">
+                   <circle 
+                     cx={`${n.cx}%`}
+                     cy={`${n.cy}%`}
+                     r="20" 
+                     fill={isActive ? "var(--accent-color, #f59e0b)" : "#4f46e5"}
+                     stroke="#fff"
+                     strokeWidth="2"
+                     className="transition-all"
+                     style={{ filter: isActive ? "drop-shadow(0 0 10px var(--accent-color, #f59e0b))" : "none" }}
+                   />
+                   <text 
+                     x={`${n.cx}%`}
+                     y={`${n.cy}%`}
+                     textAnchor="middle" 
+                     dy=".3em" 
+                     fill="#fff" 
+                     fontSize="14" 
+                     fontWeight="bold"
+                   >
+                     {n.val}
+                   </text>
+                 </g>
+               );
+             })}
+          </svg>
+        </div>
+      );
     }
   };
 
   return (
-    <div className="d-flex flex-column h-100 bg-dark text-white">
+    <div className={`d-flex flex-column bg-dark text-white ${isFullscreen ? 'position-fixed top-0 start-0 w-100 h-100' : 'h-100'}`} style={isFullscreen ? { zIndex: 1050 } : {}}>
       {/* Top Navbar & Search */}
       <div className="d-flex align-items-center justify-content-between p-2 bg-black bg-opacity-50 border-bottom border-secondary border-opacity-25 flex-wrap">
         <div className="d-flex overflow-auto mb-2 mb-md-0" style={{ scrollbarWidth: "none" }}>
@@ -280,6 +374,8 @@ const DSAVisualizer = ({ topic }) => {
                 if (s.id === "linkedlist") loadAlgorithm("linked list");
                 else if (s.id === "stack") loadAlgorithm("stack");
                 else if (s.id === "queue") loadAlgorithm("queue");
+                else if (s.id === "tree") loadAlgorithm("binary search tree");
+                else if (s.id === "graph") loadAlgorithm("graph bfs");
                 else loadAlgorithm("bubble sort");
               }}
               className={`btn btn-sm me-2 text-nowrap rounded-pill px-3 ${activeStruct === s.id ? "btn-accent shadow" : "btn-outline-secondary border-0"}`}
@@ -288,16 +384,58 @@ const DSAVisualizer = ({ topic }) => {
             </button>
           ))}
         </div>
-        <div className="position-relative ms-auto" style={{ minWidth: "250px" }}>
-          <i className="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-2 text-muted"></i>
-          <input 
-            type="text" 
-            className="form-control form-control-sm bg-dark border-secondary text-light ps-4" 
-            placeholder="Search Algorithm... (e.g. Selection Sort)"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={handleSearch}
-          />
+        <div className="position-relative ms-auto d-flex align-items-center gap-3">
+          <div className="d-flex align-items-center justify-content-end" style={{ width: showSearch ? "250px" : "32px", transition: "width 0.3s ease" }}>
+            {showSearch ? (
+              <div className="position-relative w-100 d-flex flex-column align-items-center z-3">
+                <div className="position-relative w-100 d-flex align-items-center">
+                  <input 
+                    type="text" 
+                    className="form-control form-control-sm bg-dark border-secondary text-light ps-3 pe-4 shadow-sm" 
+                    placeholder="Search Algorithm..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    onKeyDown={handleSearch}
+                    autoFocus
+                  />
+                  <i 
+                    className="bi bi-x position-absolute top-50 end-0 translate-middle-y me-2 text-muted" 
+                    style={{ cursor: "pointer" }}
+                    onClick={() => { setShowSearch(false); setFilteredOptions([]); }}
+                    title="Close Search"
+                  ></i>
+                </div>
+                {filteredOptions.length > 0 && (
+                  <ul className="dropdown-menu dropdown-menu-dark show position-absolute w-100 mt-5 shadow-lg border-secondary border-opacity-50" style={{ top: "0" }}>
+                    {filteredOptions.map((opt, idx) => (
+                      <li key={idx}>
+                        <button className="dropdown-item text-capitalize" onClick={() => selectAlgorithm(opt)}>
+                          <i className="bi bi-search me-2 text-muted small"></i>{opt}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ) : (
+              <button 
+                className="btn btn-sm btn-outline-secondary rounded d-flex align-items-center justify-content-center border-0" 
+                style={{ width: "32px", height: "32px" }}
+                onClick={() => setShowSearch(true)}
+                title="Search Algorithm"
+              >
+                <i className="bi bi-search"></i>
+              </button>
+            )}
+          </div>
+          <button 
+            className="btn btn-sm btn-outline-secondary rounded d-flex align-items-center justify-content-center" 
+            style={{ width: "32px", height: "32px" }}
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+          >
+            <i className={`bi ${isFullscreen ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'}`}></i>
+          </button>
         </div>
       </div>
 
@@ -323,30 +461,25 @@ const DSAVisualizer = ({ topic }) => {
             </div>
 
             {renderVisualization()}
-            
-            {/* AI Explanation Panel inside Visualizer */}
-            <div className="position-absolute bottom-0 w-100 p-3 bg-dark bg-opacity-75 border-top border-secondary border-opacity-25 text-center transition-all">
-              <p className="m-0 fs-5 text-light fw-bold">
-                {isPlaying ? (
-                   <><i className="bi bi-magic text-warning me-2"></i> {description}</>
-                ) : (
-                   <><i className="bi bi-pause-circle text-muted me-2"></i> {description || "Paused."}</>
-                )}
-              </p>
-            </div>
           </div>
 
           {/* Controls Area */}
           <div className="card bg-dark border-secondary border-opacity-25 shadow-sm">
             <div className="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
               <div className="btn-group shadow-sm">
-                <button className="btn btn-outline-light px-4" onClick={() => { setIsPlaying(false); setStep(s => Math.max(0, s - 1)); }} disabled={step === 0}>
+                <button className="btn btn-outline-light px-3" onClick={() => { setIsPlaying(false); setStep(s => Math.max(0, s - 1)); }} disabled={step === 0} title="Previous Step">
                   <i className="bi bi-skip-backward-fill"></i>
                 </button>
-                <button className={`btn px-5 ${isPlaying ? 'btn-danger' : 'btn-accent'}`} onClick={() => setIsPlaying(!isPlaying)}>
-                  <i className={`bi ${isPlaying ? 'bi-pause-fill' : 'bi-play-fill'} fs-5`}></i>
+                <button className="btn btn-danger px-4" onClick={reset} title="Stop & Reset">
+                  <i className="bi bi-stop-fill fs-5"></i>
                 </button>
-                <button className="btn btn-outline-light px-4" onClick={() => { setIsPlaying(false); setStep(s => Math.min(history.length - 1, s + 1)); }} disabled={step >= history.length - 1}>
+                <button className={`btn px-4 ${isPlaying ? 'btn-outline-accent' : 'btn-accent'}`} onClick={() => setIsPlaying(true)} disabled={isPlaying || step >= history.length - 1} title="Play">
+                  <i className="bi bi-play-fill fs-5"></i>
+                </button>
+                <button className={`btn px-4 ${!isPlaying ? 'btn-outline-warning' : 'btn-warning'}`} onClick={() => setIsPlaying(false)} disabled={!isPlaying} title="Pause">
+                  <i className="bi bi-pause-fill fs-5"></i>
+                </button>
+                <button className="btn btn-outline-light px-3" onClick={() => { setIsPlaying(false); setStep(s => Math.min(history.length - 1, s + 1)); }} disabled={step >= history.length - 1} title="Next Step">
                   <i className="bi bi-skip-forward-fill"></i>
                 </button>
               </div>

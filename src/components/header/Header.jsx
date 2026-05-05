@@ -7,6 +7,8 @@ const Header = ({ isSidebarOpen, toggleSidebar }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [history, setHistory] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     const loadUser = () => {
@@ -33,8 +35,38 @@ const Header = ({ isSidebarOpen, toggleSidebar }) => {
     };
     fetchHistory();
 
-    return () => window.removeEventListener("userUpdated", loadUser);
+    // Fetch notifications
+    const fetchNotifications = async () => {
+      try {
+        const stored = localStorage.getItem("user");
+        if (stored) {
+          const u = JSON.parse(stored);
+          const res = await axios.get(`http://localhost:8080/api/notifications/user/${u.id}`);
+          setNotifications(res.data);
+        }
+      } catch (e) {
+        console.error("Failed to fetch notifications", e);
+      }
+    };
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 15000);
+
+    return () => {
+      window.removeEventListener("userUpdated", loadUser);
+      clearInterval(interval);
+    };
   }, []);
+
+  const markAsRead = async (id) => {
+    try {
+      await axios.put(`http://localhost:8080/api/notifications/${id}/read`);
+      setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <>
@@ -113,11 +145,48 @@ const Header = ({ isSidebarOpen, toggleSidebar }) => {
             )}
           </div>
           <div className="position-relative px-2">
-            <i className="bi bi-bell fs-5 text-muted"></i>
-            <span
-              className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
-              style={{ width: "8px", height: "8px" }}
-            ></span>
+            <i 
+              className="bi bi-bell fs-5 text-muted hover-glow cursor-pointer"
+              style={{ cursor: "pointer" }}
+              onClick={() => setShowNotifications(!showNotifications)}
+            ></i>
+            {unreadCount > 0 && (
+              <span
+                className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
+                style={{ width: "8px", height: "8px" }}
+              ></span>
+            )}
+            
+            {showNotifications && (
+              <div 
+                className="position-absolute bg-dark text-light mt-2 rounded shadow-lg z-3" 
+                style={{ width: "300px", right: 0, border: "1px solid rgba(255,255,255,0.1)", maxHeight: "400px", overflowY: "auto" }}
+              >
+                <div className="p-3 border-bottom border-secondary border-opacity-25 fw-bold d-flex justify-content-between align-items-center">
+                  <span>Notifications</span>
+                  {unreadCount > 0 && <span className="badge bg-danger">{unreadCount} New</span>}
+                </div>
+                {notifications.length > 0 ? (
+                  notifications.map((n) => (
+                    <div 
+                      key={n.id} 
+                      className={`p-3 border-bottom border-secondary border-opacity-25 hover-glow cursor-pointer ${!n.read ? 'bg-secondary bg-opacity-25' : ''}`}
+                      onClick={() => {
+                        if (!n.read) markAsRead(n.id);
+                      }}
+                    >
+                      <div className="fw-bold" style={{ fontSize: "0.9rem" }}>{n.title}</div>
+                      <div className="text-muted mt-1" style={{ fontSize: "0.8rem", lineHeight: "1.4" }}>{n.message}</div>
+                      <small className="text-muted d-block mt-2" style={{ fontSize: "0.7rem" }}>
+                        {new Date(n.createdAt).toLocaleString()}
+                      </small>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-4 text-center text-muted small">No notifications yet.</div>
+                )}
+              </div>
+            )}
           </div>
           <div
             className="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white fw-bold overflow-hidden profile-avatar"

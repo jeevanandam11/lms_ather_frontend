@@ -9,19 +9,20 @@ const WebEditor = () => {
   const [srcDoc, setSrcDoc] = useState("");
   const [devicePreview, setDevicePreview] = useState("desktop");
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setSrcDoc(`
-        <html>
-          <body>${html}</body>
-          <style>${css}</style>
-          <script>${js}</script>
-        </html>
-      `);
-    }, 250);
+  const handleRun = () => {
+    setSrcDoc(`
+      <html>
+        <body>${html}</body>
+        <style>${css}</style>
+        <script>${js}</script>
+      </html>
+    `);
+  };
 
-    return () => clearTimeout(timeout);
-  }, [html, css, js]);
+  useEffect(() => {
+    handleRun();
+    // eslint-disable-next-line
+  }, []);
 
   const getDeviceWidth = () => {
     switch (devicePreview) {
@@ -49,6 +50,9 @@ const WebEditor = () => {
           ))}
         </div>
         <div className="d-flex gap-2 align-items-center">
+          <button className="btn btn-sm btn-success fw-bold d-flex align-items-center gap-1 me-2 shadow-sm" onClick={handleRun}>
+            <i className="bi bi-play-fill fs-6"></i> Run
+          </button>
           <div className="btn-group border border-secondary border-opacity-25 rounded">
             <button 
               className={`btn btn-sm ${devicePreview === 'mobile' ? 'btn-secondary' : 'btn-dark'}`}

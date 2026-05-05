@@ -100,6 +100,13 @@ Format strictly as:
         contents: [{ role: "user", parts: [{ text: prompt }] }]
       });
       let text = res.data.text;
+      
+      // The backend system prompt automatically appends 'SUGGESTIONS: [...]' to the end of every response.
+      // We need to strip this out before parsing the JSON array.
+      if (text.includes("SUGGESTIONS:")) {
+         text = text.substring(0, text.lastIndexOf("SUGGESTIONS:"));
+      }
+      
       text = text.replace(/```json/g, '').replace(/```/g, '').trim();
       const startIndex = text.indexOf('[');
       const endIndex = text.lastIndexOf(']');
@@ -110,10 +117,10 @@ Format strictly as:
           setQuestionsData(parsed);
           setUserAnswers(new Array(parsed.length).fill(null));
         } else {
-           throw new Error("Invalid array");
+           throw new Error("Invalid array structure returned");
         }
       } else {
-        throw new Error("Invalid JSON response");
+        throw new Error("No JSON array found in response: " + res.data.text);
       }
     } catch (err) {
       console.error("Failed to generate questions:", err);
@@ -121,10 +128,10 @@ Format strictly as:
       setQuestionsData([{
         category: topic || "Aptitude",
         difficulty: difficulty,
-        text: `Failed to load a ${difficulty} test for ${topic || 'Aptitude'}. Please try again.`,
-        options: ["A", "B", "C", "D"],
+        text: `Failed to load a ${difficulty} test for ${topic || 'Aptitude'}. Please try again. Make sure the AI backend is responding.`,
+        options: ["Retry", "Check Console", "Rate Limit?", "Wait"],
         correct: 0,
-        aiHint: "Network Error.",
+        aiHint: "Error: Could not generate questions. The AI API quota may have been exceeded or the JSON response was malformed. Please try again in 60 seconds.",
         shortcut: "N/A",
         stepByStep: ["N/A"]
       }]);
@@ -301,6 +308,22 @@ Format strictly as:
           <div className="card bg-black border-secondary border-opacity-25 mb-4 shadow-sm">
             <div className="card-body p-4">
               <h5 className="lh-base mb-0">{currentQ.text}</h5>
+              
+              <div className="d-flex justify-content-end mt-3">
+                 <button 
+                   type="button" 
+                   className="btn btn-link text-info text-decoration-none p-0" 
+                   onClick={(e) => { e.preventDefault(); setShowHint(prev => !prev); }}
+                 >
+                    <i className="bi bi-lightbulb"></i> {showHint ? "Hide Hint" : "Need a Hint?"}
+                 </button>
+              </div>
+              
+              {showHint && (
+                 <div className="mt-3 p-3 bg-info bg-opacity-10 border border-info border-opacity-25 rounded text-light text-sm">
+                    <i className="bi bi-info-circle-fill text-info me-2"></i> {currentQ.aiHint || currentQ.hint || currentQ.aihint || "No hint provided for this question."}
+                 </div>
+              )}
             </div>
           </div>
 
@@ -359,19 +382,6 @@ Format strictly as:
               ></textarea>
             </div>
           </div>
-          
-          <div className="d-flex justify-content-end mb-2">
-             <button className="btn btn-link text-info text-decoration-none" onClick={() => setShowHint(!showHint)}>
-                <i className="bi bi-lightbulb"></i> {showHint ? "Hide Hint" : "Need a Hint?"}
-             </button>
-          </div>
-          
-          {showHint && (
-             <div className="p-3 bg-info bg-opacity-10 border border-info border-opacity-25 rounded mb-3 text-light text-sm">
-                <i className="bi bi-info-circle-fill text-info me-2"></i> {currentQ.aiHint}
-             </div>
-          )}
-
         </>
       ) : null}
     </div>

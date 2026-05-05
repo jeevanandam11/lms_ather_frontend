@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { GoogleLogin } from "@react-oauth/google";
 import "../../App.css"; // assuming app.css has bootstrap and some globals
 
 const Auth = ({ onLogin }) => {
@@ -85,31 +86,29 @@ const Auth = ({ onLogin }) => {
         </p>
 
         {/* Social Buttons */}
-        <div className="d-flex gap-3 mb-4">
-          <button
-            className="btn flex-grow-1 d-flex align-items-center justify-content-center gap-2"
-            style={{
-              backgroundColor: "transparent",
-              border: "1px solid #1e293b",
-              color: "#f8fafc",
-              borderRadius: "8px",
-              padding: "10px",
+        <div className="d-flex gap-3 mb-4 justify-content-center">
+          <GoogleLogin
+            onSuccess={async (credentialResponse) => {
+              try {
+                setLoading(true);
+                const res = await axios.post("http://localhost:8080/api/auth/google", {
+                  token: credentialResponse.credential
+                });
+                localStorage.setItem("user", JSON.stringify(res.data));
+                onLogin(res.data);
+              } catch (err) {
+                setError(err.response?.data?.error || err.response?.data || "Google login failed.");
+              } finally {
+                setLoading(false);
+              }
             }}
-          >
-            <i className="bi bi-google text-white"></i> Google
-          </button>
-          <button
-            className="btn flex-grow-1 d-flex align-items-center justify-content-center gap-2"
-            style={{
-              backgroundColor: "transparent",
-              border: "1px solid #1e293b",
-              color: "#f8fafc",
-              borderRadius: "8px",
-              padding: "10px",
+            onError={() => {
+              setError("Google authentication failed");
             }}
-          >
-            <i className="bi bi-github text-white"></i> GitHub
-          </button>
+            theme="filled_black"
+            text={isLogin ? "signin_with" : "signup_with"}
+            shape="rectangular"
+          />
         </div>
 
         {/* Divider */}

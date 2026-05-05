@@ -156,17 +156,217 @@ export const generateLinkedList = () => {
     };
 };
 
+export const generateQuickSort = (array) => {
+  let arr = [...array];
+  let steps = [];
+  steps.push({ state: [...arr], active: [], type: 'start', line: 1, description: 'Start Quick Sort' });
+  
+  const partition = (low, high) => {
+    let pivot = arr[high];
+    steps.push({ state: [...arr], active: [high], type: 'visit', line: 3, description: `Select pivot ${pivot} at index ${high}` });
+    let i = low - 1;
+    for (let j = low; j < high; j++) {
+      steps.push({ state: [...arr], active: [j, high], type: 'compare', line: 5, description: `Compare ${arr[j]} with pivot ${pivot}` });
+      if (arr[j] < pivot) {
+        i++;
+        let temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+        steps.push({ state: [...arr], active: [i, j], type: 'swap', line: 7, description: `Swap ${arr[i]} and ${arr[j]} since ${arr[i]} < pivot` });
+      }
+    }
+    let temp = arr[i + 1];
+    arr[i + 1] = arr[high];
+    arr[high] = temp;
+    steps.push({ state: [...arr], active: [i + 1, high], type: 'swap', line: 10, description: `Place pivot ${pivot} in correct position ${i + 1}` });
+    return i + 1;
+  };
+
+  const quickSort = (low, high) => {
+    if (low < high) {
+      let pi = partition(low, high);
+      quickSort(low, pi - 1);
+      quickSort(pi + 1, high);
+    }
+  };
+  
+  quickSort(0, arr.length - 1);
+  steps.push({ state: [...arr], active: [], type: 'done', line: 15, description: 'Array is sorted!' });
+  return {
+    structType: 'array',
+    steps,
+    codeSnippet: `function quickSort(arr, low, high) {\n  if (low < high) {\n    let pi = partition(arr, low, high);\n    quickSort(arr, low, pi - 1);\n    quickSort(arr, pi + 1, high);\n  }\n}`,
+    timeComplexity: "O(n log n)",
+    label: "Quick Sort"
+  };
+};
+
+export const generateLinearSearch = (array) => {
+  let arr = [...array];
+  let target = arr[Math.floor(Math.random() * arr.length)];
+  let steps = [];
+  steps.push({ state: [...arr], active: [], type: 'start', line: 1, description: `Start Linear Search for target: ${target}` });
+  
+  for (let i = 0; i < arr.length; i++) {
+    steps.push({ state: [...arr], active: [i], type: 'compare', line: 3, description: `Checking index ${i}: Is ${arr[i]} === ${target}?` });
+    if (arr[i] === target) {
+      steps.push({ state: [...arr], active: [i], type: 'done', line: 4, description: `Target ${target} found at index ${i}!` });
+      break;
+    }
+  }
+  return {
+    structType: 'array',
+    steps,
+    codeSnippet: `function linearSearch(arr, target) {\n  for (let i = 0; i < arr.length; i++) {\n    if (arr[i] === target) return i;\n  }\n  return -1;\n}`,
+    timeComplexity: "O(n)",
+    label: "Linear Search"
+  };
+};
+
+export const generateBinarySearch = (array) => {
+  let arr = [...array].sort((a, b) => a - b);
+  let target = arr[Math.floor(Math.random() * arr.length)];
+  let steps = [];
+  steps.push({ state: [...arr], active: [], type: 'start', line: 1, description: `Start Binary Search for target: ${target} (Array must be sorted)` });
+  
+  let left = 0;
+  let right = arr.length - 1;
+  while (left <= right) {
+    let mid = Math.floor((left + right) / 2);
+    steps.push({ state: [...arr], active: [left, mid, right], type: 'visit', line: 4, description: `Left: ${left}, Right: ${right}, Mid: ${mid} (${arr[mid]})` });
+    steps.push({ state: [...arr], active: [mid], type: 'compare', line: 5, description: `Is arr[mid] ${arr[mid]} === ${target}?` });
+    if (arr[mid] === target) {
+      steps.push({ state: [...arr], active: [mid], type: 'done', line: 6, description: `Target ${target} found at index ${mid}!` });
+      break;
+    } else if (arr[mid] < target) {
+      steps.push({ state: [...arr], active: [mid], type: 'update', line: 8, description: `${arr[mid]} < ${target}, so search right half.` });
+      left = mid + 1;
+    } else {
+      steps.push({ state: [...arr], active: [mid], type: 'update', line: 10, description: `${arr[mid]} > ${target}, so search left half.` });
+      right = mid - 1;
+    }
+  }
+  return {
+    structType: 'array',
+    steps,
+    codeSnippet: `function binarySearch(arr, target) {\n  let left = 0, right = arr.length - 1;\n  while (left <= right) {\n    let mid = Math.floor((left + right) / 2);\n    if (arr[mid] === target) return mid;\n    if (arr[mid] < target) left = mid + 1;\n    else right = mid - 1;\n  }\n  return -1;\n}`,
+    timeComplexity: "O(log n)",
+    label: "Binary Search"
+  };
+};
+
+export const generateBST = () => {
+  const nodes = [
+    { id: 0, val: 50, cx: 50, cy: 20 },
+    { id: 1, val: 30, cx: 25, cy: 50 },
+    { id: 2, val: 70, cx: 75, cy: 50 },
+    { id: 3, val: 20, cx: 12.5, cy: 80 },
+    { id: 4, val: 40, cx: 37.5, cy: 80 },
+    { id: 5, val: 60, cx: 62.5, cy: 80 },
+    { id: 6, val: 80, cx: 87.5, cy: 80 }
+  ];
+  const edges = [
+    { from: 0, to: 1 }, { from: 0, to: 2 },
+    { from: 1, to: 3 }, { from: 1, to: 4 },
+    { from: 2, to: 5 }, { from: 2, to: 6 }
+  ];
+  
+  let steps = [];
+  let state = { nodes, edges };
+  steps.push({ state, active: [], type: 'start', line: 1, description: 'Start Inorder Traversal of BST' });
+  
+  const inorder = (nodeId) => {
+    if (nodeId === undefined) return;
+    steps.push({ state, active: [nodeId], type: 'visit', line: 3, description: `Visiting Node ${nodes[nodeId].val}, traversing left subtree...` });
+    
+    let leftEdge = edges.find(e => e.from === nodeId && nodes[e.to].cx < nodes[nodeId].cx);
+    if (leftEdge) inorder(leftEdge.to);
+    
+    steps.push({ state, active: [nodeId], type: 'process', line: 4, description: `Processing Node ${nodes[nodeId].val}` });
+    
+    let rightEdge = edges.find(e => e.from === nodeId && nodes[e.to].cx > nodes[nodeId].cx);
+    if (rightEdge) inorder(rightEdge.to);
+  };
+  
+  inorder(0);
+  steps.push({ state, active: [], type: 'done', line: 6, description: 'Inorder Traversal Complete!' });
+  
+  return {
+    structType: 'tree',
+    steps,
+    codeSnippet: `function inorder(node) {\n  if (node !== null) {\n    inorder(node.left);\n    console.log(node.val);\n    inorder(node.right);\n  }\n}`,
+    timeComplexity: "O(n)",
+    label: "BST Inorder Traversal"
+  };
+};
+
+export const generateGraphBFS = () => {
+  const nodes = [
+    { id: 0, val: 'A', cx: 50, cy: 20 },
+    { id: 1, val: 'B', cx: 20, cy: 50 },
+    { id: 2, val: 'C', cx: 80, cy: 50 },
+    { id: 3, val: 'D', cx: 35, cy: 80 },
+    { id: 4, val: 'E', cx: 65, cy: 80 }
+  ];
+  const edges = [
+    { from: 0, to: 1 }, { from: 0, to: 2 },
+    { from: 1, to: 3 }, { from: 1, to: 4 },
+    { from: 2, to: 4 }
+  ];
+  
+  let steps = [];
+  let state = { nodes, edges };
+  steps.push({ state, active: [], type: 'start', line: 1, description: 'Start Breadth-First Search from Node A' });
+  
+  let queue = [0];
+  let visited = new Set([0]);
+  
+  while (queue.length > 0) {
+    let u = queue.shift();
+    steps.push({ state, active: [u], type: 'dequeue', line: 4, description: `Dequeue Node ${nodes[u].val} and visit its neighbors` });
+    
+    let neighbors = edges.filter(e => e.from === u || e.to === u).map(e => e.from === u ? e.to : e.from);
+    for (let v of neighbors) {
+      if (!visited.has(v)) {
+        visited.add(v);
+        queue.push(v);
+        steps.push({ state, active: [u, v], type: 'enqueue', line: 7, description: `Neighbor Node ${nodes[v].val} is unvisited, enqueueing.` });
+      }
+    }
+  }
+  
+  steps.push({ state, active: [], type: 'done', line: 10, description: 'BFS Traversal Complete!' });
+  
+  return {
+    structType: 'graph',
+    steps,
+    codeSnippet: `function bfs(graph, start) {\n  let queue = [start];\n  let visited = new Set([start]);\n  while (queue.length > 0) {\n    let u = queue.shift();\n    for (let v of graph.neighbors(u)) {\n      if (!visited.has(v)) {\n        visited.add(v);\n        queue.push(v);\n      }\n    }\n  }\n}`,
+    timeComplexity: "O(V + E)",
+    label: "Graph BFS"
+  };
+};
+
 export const dsaRegistry = {
   "bubble sort": generateBubbleSort,
   "selection sort": generateSelectionSort,
   "insertion sort": generateInsertionSort,
+  "quick sort": generateQuickSort,
+  "binary search": generateBinarySearch,
+  "linear search": generateLinearSearch,
   "stack": generateStackOps,
   "queue": generateQueueOps,
-  "linked list": generateLinkedList
+  "linked list": generateLinkedList,
+  "binary search tree": generateBST,
+  "graph bfs": generateGraphBFS
 };
 
 export const findAlgorithm = (query) => {
   const q = query.toLowerCase();
+  
+  if (dsaRegistry[q]) {
+    return { key: q, generator: dsaRegistry[q] };
+  }
+  
   for (const key in dsaRegistry) {
     if (q.includes(key) || key.includes(q)) {
       return { key, generator: dsaRegistry[key] };
