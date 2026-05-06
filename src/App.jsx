@@ -25,11 +25,13 @@ function App() {
   const params = new URLSearchParams(window.location.search);
   const viewParam = params.get("view");
   const topicParam = params.get("topic") || "";
+  const historyIdParam = params.get("historyId") || null;
 
   const [currentView, setCurrentView] = useState(
     viewParam === "player" ? "player" : "home",
   );
   const [activeTopic, setActiveTopic] = useState(topicParam);
+  const [activeHistoryId, setActiveHistoryId] = useState(historyIdParam);
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
@@ -39,6 +41,8 @@ function App() {
       if (typeof e.detail === 'object' && e.detail.view) {
         setCurrentView(e.detail.view);
         if (e.detail.topic) setActiveTopic(e.detail.topic);
+        if (e.detail.historyId !== undefined) setActiveHistoryId(e.detail.historyId);
+        else setActiveHistoryId(null);
       } else {
         setCurrentView(e.detail);
       }
@@ -135,7 +139,7 @@ function App() {
               />
             ) : currentView === "player" ? (
               <div className="h-100">
-                <AetherPlayer topic={activeTopic} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+                <AetherPlayer topic={activeTopic} historyId={activeHistoryId} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
               </div>
             ) : null}
           </main>

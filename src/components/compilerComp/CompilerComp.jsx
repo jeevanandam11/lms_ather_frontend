@@ -1,12 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import axios from "axios";
 
 const Compiler = () => {
-  const [code, setCode] = useState("// Write your code here");
+  const defaultComments = {
+    java: "// Write your Java code here",
+    python: "# Write your Python code here",
+    cpp: "// Write your C++ code here",
+    c: "// Write your C code here",
+    javascript: "// Write your JavaScript code here",
+  };
+
   const [language, setLanguage] = useState("java");
+  const [code, setCode] = useState(defaultComments["java"]);
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
+  const [editorTheme, setEditorTheme] = useState(
+    document.body.classList.contains("light-theme") ? "vs" : "vs-dark"
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setEditorTheme(document.body.classList.contains("light-theme") ? "vs" : "vs-dark");
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
   // Map to default filenames for OneCompiler
   const fileNames = {
@@ -54,11 +73,18 @@ const Compiler = () => {
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {/* Top Bar */}
-      <div style={{ padding: "10px", background: "#020617", color: "white", display: "flex", gap: "10px" }}>
+      <div className="bg-dark text-white border-bottom border-secondary border-opacity-25" style={{ padding: "10px", display: "flex", gap: "10px" }}>
         <select 
           value={language} 
-          onChange={(e) => setLanguage(e.target.value)}
-          style={{ padding: "5px", borderRadius: "5px", background: "#1e293b", color: "white", border: "1px solid #334155" }}
+          onChange={(e) => {
+            const newLang = e.target.value;
+            setLanguage(newLang);
+            if (!code.trim() || Object.values(defaultComments).includes(code.trim())) {
+              setCode(defaultComments[newLang]);
+            }
+          }}
+          className="bg-dark text-white border-secondary border-opacity-25"
+          style={{ padding: "5px", borderRadius: "5px", border: "1px solid" }}
         >
           <option value="java">Java</option>
           <option value="python">Python</option>
@@ -87,7 +113,7 @@ const Compiler = () => {
       <div style={{ flex: 1 }}>
         <Editor
           height="100%"
-          theme="vs-dark"
+          theme={editorTheme}
           language={language === "c" || language === "cpp" ? "cpp" : language}
           value={code}
           onChange={(value) => setCode(value)}
@@ -96,12 +122,10 @@ const Compiler = () => {
 
       {/* Output Panel */}
       <div
+        className="bg-dark text-white border-top border-secondary border-opacity-25"
         style={{
           height: "200px",
-          background: "#020617",
-          color: "white",
           padding: "10px",
-          borderTop: "1px solid #1e293b",
           overflowY: "auto"
         }}
       >

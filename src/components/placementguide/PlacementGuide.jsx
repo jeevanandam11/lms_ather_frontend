@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 // import Sidebar from "../sidebar/Sidebar";
 import Header from "../header/Header";
 import "../../App.css";
@@ -11,6 +12,44 @@ const PlacementGuide = ({ isSidebarOpen, toggleSidebar }) => {
   const [loading, setLoading] = useState(false);
   const [roadmapData, setRoadmapData] = useState(null);
   const [error, setError] = useState("");
+  const [topicHistory, setTopicHistory] = useState([]);
+
+  useEffect(() => {
+    const fetchTopicHistory = async () => {
+      try {
+        const stored = localStorage.getItem("user");
+        if (stored) {
+          const u = JSON.parse(stored);
+          const res = await axios.get(`http://localhost:8080/api/history/user/${u.id}`);
+          setTopicHistory(res.data);
+        }
+      } catch (e) {
+        console.error("Failed to fetch topic history", e);
+      }
+    };
+    fetchTopicHistory();
+    window.addEventListener("historyUpdated", fetchTopicHistory);
+    return () => window.removeEventListener("historyUpdated", fetchTopicHistory);
+  }, []);
+
+  const handleGenerateLesson = (topicName) => {
+    const existingItem = topicHistory.find(h => h.topicName.toLowerCase() === topicName.trim().toLowerCase());
+    if (existingItem) {
+      window.dispatchEvent(
+        new CustomEvent("navigate", {
+          detail: { view: "player", historyId: existingItem.id, topic: existingItem.topicName },
+        }),
+      );
+      window.history.pushState(null, "", "?view=player&historyId=" + existingItem.id + "&topic=" + encodeURIComponent(existingItem.topicName));
+    } else {
+      window.dispatchEvent(
+        new CustomEvent("navigate", {
+          detail: { view: "player", topic: topicName },
+        }),
+      );
+      window.history.pushState(null, "", "?view=player&topic=" + encodeURIComponent(topicName));
+    }
+  };
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
   const handleRoleChange = (e) => setRole(e.target.value);
@@ -241,9 +280,7 @@ const PlacementGuide = ({ isSidebarOpen, toggleSidebar }) => {
                               <div className="col-md-6" key={i}>
                                 <div
                                   className="glass-card p-4 h-100 text-center cursor-pointer transition-all hover-glow"
-                                  onClick={() =>
-                                    (window.location.href = `/?view=player&topic=${encodeURIComponent(topic)}`)
-                                  }
+                                  onClick={() => handleGenerateLesson(topic)}
                                   style={{
                                     cursor: "pointer",
                                     border: "1px solid rgba(255,255,255,0.1)",

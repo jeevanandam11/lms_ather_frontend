@@ -4,7 +4,7 @@ import "../../App.css";
 import WorkspacePanel from "../workspace/WorkspacePanel";
 import Header from "../header/Header";
 
-const AetherPlayer = ({ topic, isSidebarOpen, toggleSidebar }) => {
+const AetherPlayer = ({ topic, historyId, isSidebarOpen, toggleSidebar }) => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
@@ -44,7 +44,7 @@ const AetherPlayer = ({ topic, isSidebarOpen, toggleSidebar }) => {
       });
       setData(res.data);
       // Initialize Gemini history style
-      setChatHistory([
+      const initialHistory = [
         { role: "user", parts: [{ text: `Generate a lesson for: ${topic}` }] },
         {
           role: "model",
@@ -52,7 +52,8 @@ const AetherPlayer = ({ topic, isSidebarOpen, toggleSidebar }) => {
             { text: "Here is your generated lesson. (View notes above)" },
           ],
         },
-      ]);
+      ];
+      setChatHistory(initialHistory);
 
       // Save History
       const userStr = localStorage.getItem("user");
@@ -62,8 +63,10 @@ const AetherPlayer = ({ topic, isSidebarOpen, toggleSidebar }) => {
           await axios.post("http://localhost:8080/api/history/save", {
             topicName: res.data.title || topic,
             pdfBase64: res.data.pdf || "",
+            lessonData: JSON.stringify({ data: res.data, chatHistory: initialHistory }),
             userId: user.id,
           });
+          window.dispatchEvent(new Event("historyUpdated"));
         } catch (saveErr) {
           console.error("Failed to save history:", saveErr);
         }
@@ -75,9 +78,29 @@ const AetherPlayer = ({ topic, isSidebarOpen, toggleSidebar }) => {
     }
   };
 
+  const fetchHistoryLesson = async (id) => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`http://localhost:8080/api/history/get/${id}`);
+      if (res.data && res.data.lessonData) {
+        const parsed = JSON.parse(res.data.lessonData);
+        setData(parsed.data || {});
+        setChatHistory(parsed.chatHistory || []);
+      }
+    } catch (err) {
+      console.error("Error fetching history lesson:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    if (topic) fetchLesson();
-  }, [topic]);
+    if (historyId) {
+      fetchHistoryLesson(historyId);
+    } else if (topic) {
+      fetchLesson();
+    }
+  }, [topic, historyId]);
 
   const handleAsk = async (optionalQ = null) => {
     const qStr = (typeof optionalQ === "string" ? optionalQ : question).trim();

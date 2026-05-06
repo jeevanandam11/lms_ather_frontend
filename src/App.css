@@ -435,11 +435,11 @@ body.light-theme pre {
 }
 
 /* User requested rule: all text color must be white in dark theme and black in light theme */
-body:not(.light-theme) * {
+body:not(.light-theme) *:not(.keep-colors):not(.keep-colors *) {
   color: white !important;
 }
 
-body.light-theme * {
+body.light-theme *:not(.keep-colors):not(.keep-colors *) {
   color: black !important;
 }
 .btn-outline-purple {
@@ -457,6 +457,9 @@ body.light-theme * {
   background-color: var(--accent-purple);
   position: fixed;
   top: 0;
+}
+.bkg-purple {
+  background-color: var(--accent-purple);
 }
 .mar-top-space {
   margin-top: 80px;
@@ -482,4 +485,48 @@ body.light-theme .input-area input {
 
 body.light-theme .input-area input::placeholder {
   color: #6b7280 !important;
+}
+
+/* Resume Hub Score Track */
+.score-track-circle {
+  stroke: #2d334a;
+  transition: stroke 0.3s ease;
+}
+
+body.light-theme .score-track-circle {
+  stroke: #e5e7eb !important;
+}
+
+.resume-score-card {
+  background: linear-gradient(135deg, #1a1d2b 0%, #121420 100%);
+}
+
+body.light-theme .resume-score-card {
+  background: #ffffff !important;
+}
+
+.bg-purple-glow {
+  border: "1px solid #8a70ff";
+}
+
+.workspace-panel-bg {
+  background-color: #0f111a;
+}
+
+body.light-theme .workspace-panel-bg {
+  background-color: #ffffff !important;
+  border-left: 1px solid #e5e7eb;
+}
+
+body.light-theme .btn-dark,
+body.light-theme .btn-secondary {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid #d1d5db !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+body.light-theme .btn-dark:hover,
+body.light-theme .btn-secondary:hover {
+  background-color: #f3f4f6 !important;
 }

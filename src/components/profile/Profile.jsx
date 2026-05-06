@@ -119,8 +119,10 @@ const Profile = ({ isSidebarOpen, toggleSidebar }) => {
         <Header isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
 
         <main className="col-md-12 vh-100 overflow-auto p-4 p-lg-5">
-          <div className="glass-card p-5 mt-4 text-white">
-            {/* HEADER */}
+          <div
+            className="glass-card p-5  text-white"
+            style={{ marginTop: "80px" }}
+          >
             <div className="d-flex align-items-center justify-content-between mb-5">
               <div className="d-flex align-items-center gap-4">
                 <div

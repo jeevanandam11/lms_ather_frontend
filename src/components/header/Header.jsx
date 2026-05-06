@@ -51,11 +51,37 @@ const Header = ({ isSidebarOpen, toggleSidebar }) => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 15000);
 
+    window.addEventListener("historyUpdated", fetchHistory);
+
     return () => {
       window.removeEventListener("userUpdated", loadUser);
+      window.removeEventListener("historyUpdated", fetchHistory);
       clearInterval(interval);
     };
   }, []);
+
+  const handleGenerate = () => {
+    if (searchQuery.trim().length > 0) {
+      const existingItem = history.find(h => h.topicName.toLowerCase() === searchQuery.trim().toLowerCase());
+      if (existingItem) {
+        window.dispatchEvent(new CustomEvent("navigate", { detail: { view: "player", historyId: existingItem.id, topic: existingItem.topicName } }));
+        window.history.pushState(null, '', "?view=player&historyId=" + existingItem.id + "&topic=" + encodeURIComponent(existingItem.topicName));
+      } else {
+        window.dispatchEvent(new CustomEvent("navigate", { detail: { view: "player", topic: searchQuery } }));
+        window.history.pushState(null, '', "?view=player&topic=" + encodeURIComponent(searchQuery));
+      }
+      setShowDropdown(false);
+    } else {
+      if (history && history.length > 0) {
+        const latest = history[0];
+        window.dispatchEvent(new CustomEvent("navigate", { detail: { view: "player", historyId: latest.id, topic: latest.topicName } }));
+        window.history.pushState(null, '', "?view=player&historyId=" + latest.id + "&topic=" + encodeURIComponent(latest.topicName));
+        setShowDropdown(false);
+      } else {
+        alert("Please enter a topic in the search bar first to generate a lesson.");
+      }
+    }
+  };
 
   const markAsRead = async (id) => {
     try {
@@ -100,18 +126,23 @@ const Header = ({ isSidebarOpen, toggleSidebar }) => {
           </div>
         </div>
 
-        <div className="d-flex align-items-center gap-3 p-3">
-          <div className="position-relative">
-            <i className="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+        <div className="d-flex align-items-center gap-3 p-3 flex-grow-1 justify-content-end">
+          <div className="position-relative flex-grow-1 mx-2 keep-colors" style={{ maxWidth: "600px" }}>
+            <i className="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 keep-colors" style={{ color: "black", zIndex: 5 }}></i>
             <input
               type="text"
-              className="form-control bg-light border-0 text-dark ps-5 shadow-none"
-              placeholder="Search knowledge base..."
-              style={{ width: "300px", borderRadius: "10px" }}
+              className="form-control border-0 ps-5 shadow-none keep-colors"
+              placeholder="Search or generate a new topic..."
+              style={{ width: "100%", borderRadius: "10px", backgroundColor: "white", color: "black" }}
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
                 setShowDropdown(e.target.value.trim().length > 0);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleGenerate();
+                }
               }}
               onFocus={() => {
                 if (searchQuery.trim().length > 0) setShowDropdown(true);
@@ -129,8 +160,8 @@ const Header = ({ isSidebarOpen, toggleSidebar }) => {
                       key={item.id} 
                       className="p-3 border-bottom border-secondary border-opacity-25 hover-glow cursor-pointer"
                       onClick={() => {
-                        window.dispatchEvent(new CustomEvent("navigate", { detail: { view: "player", topic: item.topicName } }));
-                        window.history.pushState(null, '', "?view=player&topic=" + encodeURIComponent(item.topicName));
+                        window.dispatchEvent(new CustomEvent("navigate", { detail: { view: "player", historyId: item.id, topic: item.topicName } }));
+                        window.history.pushState(null, '', "?view=player&historyId=" + item.id + "&topic=" + encodeURIComponent(item.topicName));
                         setShowDropdown(false);
                       }}
                     >
@@ -143,6 +174,14 @@ const Header = ({ isSidebarOpen, toggleSidebar }) => {
                 )}
               </div>
             )}
+          </div>
+          <div className="px-2">
+            <i 
+              className="bi bi-magic fs-5 text-light hover-glow cursor-pointer"
+              title="Generate New Topic"
+              style={{ cursor: "pointer" }}
+              onClick={handleGenerate}
+            ></i>
           </div>
           <div className="position-relative px-2">
             <i 

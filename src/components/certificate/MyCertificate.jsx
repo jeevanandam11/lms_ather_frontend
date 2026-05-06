@@ -76,24 +76,29 @@ const MyCertificate = ({ isSidebarOpen, toggleSidebar }) => {
               </div>
             ) : (
               certificates.map((cert) => (
-                <div key={cert.id} className="col-lg-10 mb-4 animate-fade-in">
-                  <div className="glass-card p-4 text-center">
+                <div 
+                  key={cert.id} 
+                  className={`${certificates.length > 2 ? "col-lg-4 col-md-6" : certificates.length === 2 ? "col-lg-6" : "col-lg-10"} mb-4 animate-fade-in`}
+                >
+                  <div className="glass-card p-4 text-center h-100 d-flex flex-column">
                     <div className="d-flex justify-content-between align-items-center mb-3 px-3">
-                      <h5 className="mb-0 fw-bold">{cert.courseName}</h5>
+                      <h5 className="mb-0 fw-bold text-truncate" style={{ maxWidth: "60%" }} title={cert.courseName}>{cert.courseName}</h5>
                       <span className="badge bg-accent bg-opacity-25 text-accent border border-accent border-opacity-50">
                         Issued: {cert.issueDate}
                       </span>
                     </div>
-                    <img
-                      src={cert.imageBase64}
-                      alt="Certificate of Achievement"
-                      className="img-fluid rounded shadow-glow"
-                      style={{
-                        maxHeight: "700px",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                      }}
-                    />
-                    <div className="mt-4">
+                    <div className="flex-grow-1 d-flex align-items-center justify-content-center">
+                      <img
+                        src={cert.imageBase64}
+                        alt="Certificate of Achievement"
+                        className="img-fluid rounded shadow-glow"
+                        style={{
+                          maxHeight: "700px",
+                          border: "1px solid rgba(255,255,255,0.1)",
+                        }}
+                      />
+                    </div>
+                    <div className="mt-4 mt-auto">
                       <a
                         href={cert.imageBase64}
                         download={`Certificate_${cert.id}.png`}

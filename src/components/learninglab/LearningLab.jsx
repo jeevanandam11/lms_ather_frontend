@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "../../App.css";
 import Header from "../header/Header";
 
 const LearningLab = ({ isSidebarOpen, toggleSidebar }) => {
   const [roadmapData, setRoadmapData] = useState(null);
   const [history, setHistory] = useState([]);
+  const [topicHistory, setTopicHistory] = useState([]);
 
   useEffect(() => {
     const data = localStorage.getItem("placementRoadmap");
@@ -24,7 +26,45 @@ const LearningLab = ({ isSidebarOpen, toggleSidebar }) => {
         console.error("Failed to parse roadmap history", e);
       }
     }
+
+    const fetchTopicHistory = async () => {
+      try {
+        const stored = localStorage.getItem("user");
+        if (stored) {
+          const u = JSON.parse(stored);
+          const res = await axios.get(`http://localhost:8080/api/history/user/${u.id}`);
+          setTopicHistory(res.data);
+        }
+      } catch (e) {
+        console.error("Failed to fetch topic history", e);
+      }
+    };
+    fetchTopicHistory();
+    window.addEventListener("historyUpdated", fetchTopicHistory);
+
+    return () => {
+      window.removeEventListener("historyUpdated", fetchTopicHistory);
+    };
   }, []);
+
+  const handleGenerateLesson = (topicName) => {
+    const existingItem = topicHistory.find(h => h.topicName.toLowerCase() === topicName.trim().toLowerCase());
+    if (existingItem) {
+      window.dispatchEvent(
+        new CustomEvent("navigate", {
+          detail: { view: "player", historyId: existingItem.id, topic: existingItem.topicName },
+        }),
+      );
+      window.history.pushState(null, "", "?view=player&historyId=" + existingItem.id + "&topic=" + encodeURIComponent(existingItem.topicName));
+    } else {
+      window.dispatchEvent(
+        new CustomEvent("navigate", {
+          detail: { view: "player", topic: topicName },
+        }),
+      );
+      window.history.pushState(null, "", "?view=player&topic=" + encodeURIComponent(topicName));
+    }
+  };
 
   const handleDeleteHistory = (id) => {
     const updatedHistory = history.filter((item) => item.id !== id);
@@ -48,7 +88,10 @@ const LearningLab = ({ isSidebarOpen, toggleSidebar }) => {
             <div className="p-4 p-lg-5">
               <div className="row g-4">
                 <div className="col-lg-12">
-                  <div className="glass-card p-4 mb-4 d-flex align-items-center justify-content-between">
+                  <div
+                    className="glass-card p-4 mb-4 d-flex align-items-center justify-content-between"
+                    style={{ border: "1px solid #8a70ff" }}
+                  >
                     <div className="d-flex align-items-center gap-4">
                       <div
                         className="progress-circle"
@@ -80,7 +123,10 @@ const LearningLab = ({ isSidebarOpen, toggleSidebar }) => {
                   </div>
 
                   {roadmapData ? (
-                    <div className="glass-card p-4 mb-4">
+                    <div
+                      className="glass-card p-4 mb-4"
+                      style={{ border: "1px solid #8a70ff" }}
+                    >
                       <h6 className="text-uppercase fw-bold small mb-4 opacity-50">
                         AI Generated Placement Roadmap
                       </h6>
@@ -108,9 +154,7 @@ const LearningLab = ({ isSidebarOpen, toggleSidebar }) => {
                                     key={i}
                                     className="badge bg-dark border border-secondary border-opacity-25 px-3 py-2 hover-glow"
                                     style={{ cursor: "pointer" }}
-                                    onClick={() =>
-                                      (window.location.href = `/?view=player&topic=${encodeURIComponent(topic)}`)
-                                    }
+                                    onClick={() => handleGenerateLesson(topic)}
                                   >
                                     {topic}
                                   </span>
@@ -121,7 +165,10 @@ const LearningLab = ({ isSidebarOpen, toggleSidebar }) => {
                       )}
                     </div>
                   ) : (
-                    <div className="glass-card p-4 mb-4">
+                    <div
+                      className="glass-card p-4 mb-4"
+                      style={{ border: "1px solid #8a70ff" }}
+                    >
                       <h6 className="text-uppercase fw-bold small mb-4 opacity-50">
                         Placement Roadmap
                       </h6>
@@ -147,7 +194,10 @@ const LearningLab = ({ isSidebarOpen, toggleSidebar }) => {
                   )}
 
                   {history.length > 0 && (
-                    <div className="glass-card p-4 mb-4">
+                    <div
+                      className="glass-card p-4 mb-4"
+                      style={{ border: "1px solid #8a70ff" }}
+                    >
                       <h6 className="text-uppercase fw-bold small mb-4 opacity-50">
                         Placement Roadmap History
                       </h6>
@@ -169,7 +219,11 @@ const LearningLab = ({ isSidebarOpen, toggleSidebar }) => {
                             <div className="d-flex gap-2">
                               <button
                                 className="btn btn-sm btn-outline-accent py-0 shadow-none"
-                                onClick={() => setRoadmapData(item.data)}
+                                onClick={(e) => {
+                                  setRoadmapData(item.data);
+                                  const mainEl = e.target.closest("main");
+                                  if (mainEl) mainEl.scrollTo({ top: 0, behavior: "smooth" });
+                                }}
                               >
                                 View
                               </button>
@@ -186,7 +240,10 @@ const LearningLab = ({ isSidebarOpen, toggleSidebar }) => {
                     </div>
                   )}
 
-                  <div className="glass-card overflow-hidden mb-4">
+                  <div
+                    className="glass-card overflow-hidden mb-4"
+                    style={{ border: "1px solid #8a70ff" }}
+                  >
                     <div className="p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
                       <div>
                         <h4 className="fw-bold mb-1">
@@ -243,81 +300,6 @@ const LearningLab = ({ isSidebarOpen, toggleSidebar }) => {
                     </div>
                   </div>
                 </div>
-
-                {/* <div className="col-lg-4">
-                  <div
-                    className="glass-card p-4 mb-4"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, #1a1d2b 0%, #251b4d 100%)",
-                    }}
-                  >
-                    <h6 className="fw-bold mb-3">
-                      <i className="bi bi-lightning-fill text-accent me-2"></i>
-                      Next Action Item
-                    </h6>
-                    <p className="small text-muted">
-                      Complete System Design Mock to reach 90% score for Google.
-                    </p>
-                    <button className="btn btn-accent w-100 py-2 fw-bold mt-2">
-                      Start Session
-                    </button>
-                  </div>
-
-                  <div className="glass-card p-4 mb-4">
-                    <h6 className="fw-bold small mb-3 text-uppercase opacity-50">
-                      <i className="bi bi-envelope me-2"></i>Cold Outreach Tools
-                    </h6>
-                    <OutreachTemplate
-                      title="Recruiter Follow-up"
-                      body="Dear [Name], I'm reaching out regarding..."
-                    />
-                    <OutreachTemplate
-                      title="Alumni Networking"
-                      body="Hi [Name], as a fellow Aether alumni..."
-                    />
-                    <button className="btn btn-outline-secondary w-100 btn-sm mt-2">
-                      Generate Custom AI Draft
-                    </button>
-                  </div>
-
-                  <div className="glass-card p-4">
-                    <h6 className="fw-bold small mb-3 text-uppercase opacity-50">
-                      <i className="bi bi-graph-up me-2"></i>Salary Insights
-                    </h6>
-                    <div
-                      className="bg-dark rounded p-4 mb-3"
-                      style={{ height: "150px" }}
-                    >
-                      <div className="d-flex align-items-end justify-content-between h-100 gap-2">
-                        <div
-                          className="bg-accent bg-opacity-25 w-100"
-                          style={{ height: "40%" }}
-                        ></div>
-                        <div
-                          className="bg-accent bg-opacity-50 w-100"
-                          style={{ height: "70%" }}
-                        ></div>
-                        <div
-                          className="bg-accent w-100"
-                          style={{ height: "100%" }}
-                        ></div>
-                        <div
-                          className="bg-accent bg-opacity-75 w-100"
-                          style={{ height: "80%" }}
-                        ></div>
-                        <div
-                          className="bg-accent bg-opacity-25 w-100"
-                          style={{ height: "30%" }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div className="d-flex justify-content-between small mb-1">
-                      <span className="text-muted">Target Role Average</span>
-                      <span className="fw-bold">$205,000</span>
-                    </div>
-                  </div>
-                </div> */}
               </div>
             </div>
           </main>

@@ -31,14 +31,42 @@ const Dashboard = ({ isSidebarOpen, toggleSidebar, onNavigate }) => {
   }, []);
 
   const handleGenerate = (newTopic) => {
-    window.dispatchEvent(new CustomEvent("navigate", { detail: { view: "player", topic: newTopic } }));
-    window.history.pushState(null, '', "?view=player&topic=" + encodeURIComponent(newTopic));
+    const existingItem = history.find(h => h.topicName.toLowerCase() === newTopic.trim().toLowerCase());
+    if (existingItem) {
+      window.dispatchEvent(
+        new CustomEvent("navigate", {
+          detail: { view: "player", historyId: existingItem.id, topic: existingItem.topicName },
+        }),
+      );
+      window.history.pushState(null, "", "?view=player&historyId=" + existingItem.id + "&topic=" + encodeURIComponent(existingItem.topicName));
+    } else {
+      window.dispatchEvent(
+        new CustomEvent("navigate", {
+          detail: { view: "player", topic: newTopic },
+        }),
+      );
+      window.history.pushState(null, "", "?view=player&topic=" + encodeURIComponent(newTopic));
+    }
+  };
+
+  const handleNoteClick = (item) => {
+    window.dispatchEvent(
+      new CustomEvent("navigate", {
+        detail: { view: "player", historyId: item.id, topic: item.topicName },
+      }),
+    );
+    window.history.pushState(
+      null,
+      "",
+      "?view=player&historyId=" + item.id + "&topic=" + encodeURIComponent(item.topicName),
+    );
   };
 
   return (
     <>
       <div className="container-fluid p-0 overflow-hidden">
         <div className="row g-0">
+          {/* Header */}
           <Header isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
           {/* Main Content */}
           <main
@@ -46,11 +74,6 @@ const Dashboard = ({ isSidebarOpen, toggleSidebar, onNavigate }) => {
               isSidebarOpen ? "col-md-12" : "col-md-12"
             } vh-100 overflow-auto p-4 p-lg-5 transition-all mar-top-space`}
           >
-            {/* Header */}
-
-            {/* Stats */}
-            {/* <StatsRow /> */}
-
             <div className="row g-4 mb-5">
               <div className="col-md-7">
                 <Topic_Gen onGenerate={handleGenerate} />
@@ -87,11 +110,18 @@ const Dashboard = ({ isSidebarOpen, toggleSidebar, onNavigate }) => {
               <div className="row g-4">
                 {history.map((item, index) => (
                   <div key={item.id || index} className="col-md-3">
-                    <div className="glass-card p-0 overflow-hidden h-100">
+                    <div 
+                      className={`glass-card p-0 overflow-hidden h-100 card-hover ${index === 0 ? 'border border-accent shadow-accent' : ''}`}
+                      onClick={() => handleNoteClick(item)}
+                      style={{ cursor: "pointer", transition: "all 0.3s ease" }}
+                    >
                       <div
                         className="bg-dark d-flex align-items-center justify-content-center position-relative"
                         style={{ height: "140px" }}
                       >
+                        {index === 0 && (
+                          <span className="position-absolute top-0 end-0 badge bg-accent m-2" style={{ fontSize: "0.6rem" }}>LATEST</span>
+                        )}
                         <i
                           className={`bi bi-${item.pdfBase64 ? "file-pdf" : "journal-text"} fs-1 opacity-25`}
                         ></i>

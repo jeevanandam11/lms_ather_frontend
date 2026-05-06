@@ -159,11 +159,7 @@ const ResumeHub = ({ isSidebarOpen, toggleSidebar }) => {
                 /* RESULTS STATE */
                 <div className="fade-in">
                   <div
-                    className="glass-card p-5 mb-4 position-relative overflow-hidden"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, #1a1d2b 0%, #121420 100%)",
-                    }}
+                    className="glass-card p-5 mb-4 position-relative overflow-hidden resume-score-card"
                   >
                     <div className="row align-items-center">
                       <div className="col-md-7">
@@ -204,7 +200,7 @@ const ResumeHub = ({ isSidebarOpen, toggleSidebar }) => {
                               cy="110"
                               r="100"
                               fill="none"
-                              stroke="#2d334a"
+                              className="score-track-circle"
                               strokeWidth="12"
                             />
                             <circle
@@ -273,7 +269,7 @@ const ResumeHub = ({ isSidebarOpen, toggleSidebar }) => {
                             Skills
                           </h6>
                         </div>
-                        <div className="p-3 rounded bg-dark bg-opacity-25 border border-white border-opacity-5 mb-3 h-100">
+                        <div className="p-3 rounded bg-dark bg-opacity-25 border border-white border-opacity-5 mb-3 ">
                           <p className="text-muted small mb-3">
                             Consider adding these high-value industry skills if
                             you possess them:

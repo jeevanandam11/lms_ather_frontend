@@ -29,13 +29,27 @@ const Library = ({ isSidebarOpen, toggleSidebar }) => {
     fetchHistory();
   }, []);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (e, id) => {
+    e.stopPropagation();
     try {
       await axios.delete(`http://localhost:8080/api/history/${id}`);
       setHistory((prev) => prev.filter((h) => h.id !== id));
     } catch (err) {
       console.error("Error deleting history", err);
     }
+  };
+
+  const handleNoteClick = (item) => {
+    window.dispatchEvent(
+      new CustomEvent("navigate", {
+        detail: { view: "player", historyId: item.id, topic: item.topicName },
+      }),
+    );
+    window.history.pushState(
+      null,
+      "",
+      "?view=player&historyId=" + item.id + "&topic=" + encodeURIComponent(item.topicName),
+    );
   };
 
   return (
@@ -106,7 +120,11 @@ const Library = ({ isSidebarOpen, toggleSidebar }) => {
                   <div className="row g-4">
                     {history.map((item) => (
                       <div key={item.id} className="col-md-4">
-                        <div className="glass-card p-4 h-100 d-flex flex-column card-hover">
+                        <div 
+                          className="glass-card p-4 h-100 d-flex flex-column card-hover"
+                          onClick={() => handleNoteClick(item)}
+                          style={{ cursor: "pointer" }}
+                        >
                           <div className="d-flex justify-content-between align-items-start mb-3">
                             <div
                               className="bg-dark rounded-circle d-flex align-items-center justify-content-center"
@@ -115,8 +133,8 @@ const Library = ({ isSidebarOpen, toggleSidebar }) => {
                               <i className="bi bi-journal-text text-accent fs-5"></i>
                             </div>
                             <button
-                              className="btn btn-link text-danger p-0"
-                              onClick={() => handleDelete(item.id)}
+                              className="btn btn-link text-danger p-0 z-2 position-relative"
+                              onClick={(e) => handleDelete(e, item.id)}
                             >
                               <i className="bi bi-trash"></i>
                             </button>
@@ -133,11 +151,12 @@ const Library = ({ isSidebarOpen, toggleSidebar }) => {
                             {new Date(item.createdAt).toLocaleDateString()}
                           </p>
 
-                          <div className="mt-auto">
+                          <div className="mt-auto z-2 position-relative">
                             {item.pdfBase64 ? (
                               <a
                                 href={`data:application/pdf;base64,${item.pdfBase64}`}
                                 download={`${item.topicName}.pdf`}
+                                onClick={(e) => e.stopPropagation()}
                                 className="btn btn-sm btn-outline-purple w-100 fw-bold"
                                 style={{ fontSize: "0.8rem" }}
                               >
@@ -179,7 +198,7 @@ const Library = ({ isSidebarOpen, toggleSidebar }) => {
                       </thead>
                       <tbody>
                         {history.map((item) => (
-                          <tr key={item.id}>
+                          <tr key={item.id} onClick={() => handleNoteClick(item)} style={{ cursor: "pointer" }} className="table-row-hover">
                             <td className="bg-transparent border-bottom border-secondary border-opacity-25 align-middle py-3 ps-4">
                               <span className="fw-bold">{item.topicName}</span>
                             </td>
@@ -191,14 +210,15 @@ const Library = ({ isSidebarOpen, toggleSidebar }) => {
                                 <a
                                   href={`data:application/pdf;base64,${item.pdfBase64}`}
                                   download={`${item.topicName}.pdf`}
-                                  className="btn btn-sm btn-outline-purple me-2"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="btn btn-sm btn-outline-purple me-2 position-relative z-2"
                                 >
                                   <i className="bi bi-file-pdf"></i>
                                 </a>
                               )}
                               <button
-                                className="btn btn-sm btn-outline-danger"
-                                onClick={() => handleDelete(item.id)}
+                                className="btn btn-sm btn-outline-danger position-relative z-2"
+                                onClick={(e) => handleDelete(e, item.id)}
                               >
                                 <i className="bi bi-trash"></i>
                               </button>

@@ -15,7 +15,7 @@ const WorkspacePanel = ({ isFullscreen, setIsFullscreen, topic }) => {
   ];
 
   return (
-    <div className="d-flex flex-column h-100" style={{ backgroundColor: "#0f111a" }}>
+    <div className="d-flex flex-column h-100 workspace-panel-bg">
       {/* Workspace Header / Tabs */}
       <div 
         className="d-flex align-items-center justify-content-between px-3 py-2 border-bottom"

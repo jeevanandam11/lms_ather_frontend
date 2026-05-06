@@ -8,13 +8,24 @@ const WebEditor = () => {
   const [js, setJs] = useState("console.log('Web Editor Initialized');");
   const [srcDoc, setSrcDoc] = useState("");
   const [devicePreview, setDevicePreview] = useState("desktop");
+  const [editorTheme, setEditorTheme] = useState(
+    document.body.classList.contains("light-theme") ? "vs" : "vs-dark"
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setEditorTheme(document.body.classList.contains("light-theme") ? "vs" : "vs-dark");
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
   const handleRun = () => {
     setSrcDoc(`
       <html>
         <body>${html}</body>
         <style>${css}</style>
-        <script>${js}</script>
+        <script type="text/javascript">${js}</script>
       </html>
     `);
   };
@@ -85,13 +96,13 @@ const WebEditor = () => {
         </div>
       </div>
 
-      <div className="d-flex flex-column flex-md-row h-100 overflow-hidden">
+      <div className="d-flex flex-column flex-md-row flex-grow-1 overflow-hidden">
         {/* Editor Pane */}
-        <div className="w-100 w-md-50 border-end border-secondary border-opacity-25 h-50 h-md-100">
+        <div className="border-end border-secondary border-opacity-25 overflow-hidden" style={{ flex: 1 }}>
           <Editor
             height="100%"
             language={activeTab === 'js' ? 'javascript' : activeTab}
-            theme="vs-dark"
+            theme={editorTheme}
             value={activeTab === "html" ? html : activeTab === "css" ? css : js}
             onChange={(value) => {
               if (activeTab === "html") setHtml(value);
@@ -108,9 +119,9 @@ const WebEditor = () => {
         </div>
 
         {/* Live Preview Pane */}
-        <div className="w-100 w-md-50 h-50 h-md-100 bg-dark d-flex flex-column align-items-center justify-content-center p-2">
+        <div className="bg-dark d-flex flex-column align-items-center justify-content-center p-2 overflow-hidden" style={{ flex: 1 }}>
           <div 
-            className="bg-white rounded overflow-hidden shadow-lg transition-all"
+            className="bg-white rounded overflow-hidden transition-all"
             style={{ 
               width: getDeviceWidth(), 
               height: "100%", 
@@ -122,7 +133,7 @@ const WebEditor = () => {
             <iframe
               srcDoc={srcDoc}
               title="output"
-              sandbox="allow-scripts"
+              sandbox="allow-scripts allow-same-origin"
               frameBorder="0"
               width="100%"
               height="100%"

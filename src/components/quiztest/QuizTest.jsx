@@ -156,7 +156,7 @@ const QuizTest = ({ isSidebarOpen, toggleSidebar }) => {
               <div className="col-lg-8 text-center mt-5">
                 <div className="glass-card p-5">
                   <i className="bi bi-robot display-4 text-accent mb-3"></i>
-                  <h4>Generate Custom AI Mock Test</h4>
+                  <h4>Generate Custom AI Quizz Test</h4>
 
                   <button
                     className="btn btn-accent px-5 py-3 fw-bold tracking-wider mt-3"
@@ -186,7 +186,7 @@ const QuizTest = ({ isSidebarOpen, toggleSidebar }) => {
               <div className="col-lg-12 animate-fade-in text-center">
                 <div className="glass-card p-5 border border-success border-opacity-50">
                   <h2 className="fw-bold mb-4">Evaluation Complete</h2>
-                  <div className="position-relative d-inline-block mb-4">
+                  {/* <div className="position-relative d-inline-block mb-4">
                     <div
                       className="progress-circle bg-dark shadow-glow rounded-circle d-flex align-items-center justify-content-center"
                       style={{
@@ -203,7 +203,7 @@ const QuizTest = ({ isSidebarOpen, toggleSidebar }) => {
                         / 100
                       </span>
                     </div>
-                  </div>
+                  </div> */}
                   <h4
                     className={`fw-bold ${score >= 70 ? "text-success" : score >= 40 ? "text-warning" : "text-danger"}`}
                   >
@@ -221,7 +221,7 @@ const QuizTest = ({ isSidebarOpen, toggleSidebar }) => {
                   <div className="mt-5 d-flex justify-content-center">
                     <div
                       ref={certRef}
-                      className="position-relative shadow-lg border border-5 border-light p-4"
+                      className="position-relative shadow-lg border border-5 border-light p-4 keep-colors"
                       style={{
                         width: "800px",
                         height: "565px",
@@ -360,7 +360,7 @@ const QuizTest = ({ isSidebarOpen, toggleSidebar }) => {
                             </h2>
 
                             <p
-                              className="mx-auto px-5 mb-4 mt-2"
+                              className="mx-auto  mt-2"
                               style={{
                                 lineHeight: "1.8",
                                 maxWidth: "650px",
@@ -396,7 +396,7 @@ const QuizTest = ({ isSidebarOpen, toggleSidebar }) => {
                                   })}
                                 </h5>
                                 <div
-                                  className="border-top border-2 mt-2 pt-2 small text-uppercase mx-4 fw-bold"
+                                  className="border-top border-2  pt-2 small text-uppercase mx-4 fw-bold"
                                   style={{
                                     borderColor: "#D4AF37",
                                     color: "#888",
@@ -408,7 +408,7 @@ const QuizTest = ({ isSidebarOpen, toggleSidebar }) => {
                                 </div>
                               </div>
                               <div className="col-4 text-center">
-                                <div
+                                {/* <div
                                   className="d-inline-flex bg-white rounded-circle align-items-center justify-content-center shadow-sm p-4 position-relative"
                                   style={{ border: "3px solid #D4AF37" }}
                                 >
@@ -416,7 +416,7 @@ const QuizTest = ({ isSidebarOpen, toggleSidebar }) => {
                                     className="bi bi-check-circle-fill fs-2"
                                     style={{ color: "#2D0845" }}
                                   ></i>
-                                </div>
+                                </div> */}
                               </div>
                               <div className="col-4 text-center">
                                 <h5
@@ -424,13 +424,13 @@ const QuizTest = ({ isSidebarOpen, toggleSidebar }) => {
                                   style={{
                                     fontFamily: "'Brush Script MT', cursive",
                                     color: "#2D0845",
-                                    fontSize: "2rem",
+                                    fontSize: "1.1rem",
                                   }}
                                 >
                                   Aether OS
                                 </h5>
                                 <div
-                                  className="border-top border-2 mt-2 pt-2 small text-uppercase mx-4 fw-bold"
+                                  className="border-top border-2  pt-2 small text-uppercase mx-4 fw-bold"
                                   style={{
                                     borderColor: "#D4AF37",
                                     color: "#888",

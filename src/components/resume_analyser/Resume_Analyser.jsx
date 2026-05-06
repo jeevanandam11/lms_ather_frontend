@@ -14,8 +14,11 @@ const Resume_Analyser = ({ onClick }) => {
       >
         <div className="d-flex align-items-center gap-3 mb-3 text-start">
           <div
-            className="rounded-3 p-2 bg-dark d-flex align-items-center justify-content-center"
-            style={{ width: "40px", height: "40px" }}
+            className="rounded-3 p-2  d-flex align-items-center justify-content-center bkg-purple"
+            style={{
+              width: "40px",
+              height: "40px",
+            }}
           >
             <i className="bi bi-file-earmark-text text-light"></i>
           </div>
